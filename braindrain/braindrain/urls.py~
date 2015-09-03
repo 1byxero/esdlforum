@@ -8,5 +8,5 @@ urlpatterns = [
 
     url(r'^admin/', include(admin.site.urls)),
     url(r'^forum/', include('forum.urls')),
-    url(r'^', include('forum.urls')),
+    url(r'^*', include('forum.urls')),
 ]

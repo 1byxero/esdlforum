@@ -13,6 +13,7 @@ def thanks(request):
 def login(request):
 	if request.method == 'POST':
 		form = NameForm(request.POST)
+		print form.name,form.email
 		if form.is_valid():
 			return HttpResponseRedirect('/thanks/')
 	else:
