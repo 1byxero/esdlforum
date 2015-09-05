@@ -1,6 +1,21 @@
-<form action="/login/" method="post">
+<!DOCTYPE html>
+<html>
+<head>
+<title>{{title}}</title>
+</head>
+<body>
+<form action="." method="post">
     {% csrf_token %}
     {{ form }}
+    {{ form.errors }}
+	{{ form.non_field_errors }}
     <input type="submit" value="Submit" />
 </form>
+<script>
 
+    {{ alert|safe }}
+
+</script>
+</body>
+
+</html>

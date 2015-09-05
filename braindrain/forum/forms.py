@@ -1,22 +1,26 @@
 from django import forms
 from .models import user
+import hashlib
 
 class userForm(forms.ModelForm):
 	class Meta:
 		model = user
-		#fields = ['name','email','username','password']
-		exclude = ['uid']
+		exclude = ['uid','questionsasked','questionsanswered','points']
 		widgets = {
 		'password': forms.PasswordInput(),
 		}
 
-	def doyourvalidation(self):
-		print forms.ModelForm.cleaned_data.get('password')
-		#print password+"asss"
-		passlen = len(str(password))
+	def clean_password(self):
+		password = self.cleaned_data['password']		
+		return hashlib.md5(password).hexdigest()
 
-		if(passlen<10):
-			print passlen
-			raise forms.ValidationError("Please enter password with more than 10 characters")
-		return password
 
+class loginform(forms.Form):	
+	username = forms.CharField(label='Username', max_length=100,required = True)
+	password = forms.CharField(label='Password', max_length=100,required = True,widget = forms.PasswordInput())
+	
+
+
+
+
+	
