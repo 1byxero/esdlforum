@@ -1,6 +1,7 @@
 from django import forms
 from django.shortcuts import render
 from django.http import HttpResponse,HttpResponseRedirect
+from django.shortcuts import redirect
 from django.core.exceptions import ObjectDoesNotExist
 from django.views.decorators.csrf import csrf_exempt
 from .forms import userForm,loginform
@@ -36,26 +37,60 @@ def signup(request):
 
 
 def login(request):
-	if request.method == 'POST':
-		#check if username and password is corret
-		form = loginform(request.POST)
-
-		if form.is_valid():						
-			formusername = form.cleaned_data['username']
-			formpassword = form.cleaned_data['password']
-			try:
-				userinstance = user.objects.get(username=formusername)
-				if(userinstance.password==hashlib.md5(formpassword).hexdigest()):
-					alert = 'alert("user verified");'
-					return render(request, 'forum/name.html',{'form':form,'alert':alert,'title':"login"})
-				else:
-					alert = 'alert("Incorrect password");'
-					return render(request, 'forum/name.html',{'form':form,'alert':alert,'title':"login"})
-			except ObjectDoesNotExist:
-				alert = 'alert("No user with given username exists");' #,%formusername
-			 	return render(request, 'forum/name.html',{'form':form,'alert':alert,'title':"login"})				
+	if "user" in request.session:			
+			return redirect(profile)
 	else:
-		form = loginform()
-		return render(request, 'forum/name.html',{'form':form,'title':"login"})	
+		if request.method == 'POST':
+			
+			form = loginform(request.POST)
+
+			if form.is_valid():						
+				formusername = form.cleaned_data['username']
+				formpassword = form.cleaned_data['password']
+				try:
+					userinstance = user.objects.get(username=formusername)
+					if(userinstance.password==hashlib.md5(formpassword).hexdigest()):
+						request.session['user'] = formusername
+						return redirect(profile)
+					else:
+						alert = 'alert("Incorrect password");'
+						return render(request, 'forum/name.html',{'form':form,'alert':alert,'title':"login"})
+				except ObjectDoesNotExist:
+					alert = 'alert("No user with given username exists");' #,%formusername
+				 	return render(request, 'forum/name.html',{'form':form,'alert':alert,'title':"login"})
+			else:
+				form = loginform()
+				alert = 'alert("Please enter password");' #,%formusername
+				return render(request, 'forum/name.html',{'form':form,'alert':alert,'title':"login"})
+
+		else:		
+			form = loginform()
+			return render(request, 'forum/name.html',{'form':form,'title':"login"})
+
+@csrf_exempt
+def profile(request):
+	if "logout" in request.POST:		
+		del request.session['user']
+		return HttpResponse("successfully logged out")
+	
+	if 'user' in request.session:
+		username = request.session['user']
+		userinstance = user.objects.get(username=username)
+		uid = userinstance.uid
+		points = userinstance.points
+		questionsasked = userinstance.questionsasked
+		questionsanswered = userinstance.questionsanswered
+
+
+		context = {
+			'user':username,
+			'uid':uid,
+			'points':points,
+			'questions':questionsasked,
+			'answers':questionsanswered
+		}
+		return render(request, 'forum/profilepage.html',context)
+	else:
+		return HttpResponse("please login")
 
 

@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<title>{{title}}</title>
+	</head>
+	
+	<body>
+		<p>Hello {{user}}</p>
+		<p>Your Uid is {{uid}}</p>
+		<p>Your points are {{points}}</p>
+		<p>You have asked {{questions}} questions</p>
+		<p>You have answered {{answers}} questions</p>
+		<form action = "." method="post" >
+			{% csrf_token %}
+			<input type="submit" value="logout" name = "logout"/>
+		</form>
+	</body>
+
+</html>
