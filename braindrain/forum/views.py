@@ -41,22 +41,25 @@ def index(request):
 
 @csrf_exempt
 def signup(request):
-	if request.method == 'POST':
-		form = userForm(request.POST)			
-		if form.is_valid():				
-				password = form.cleaned_data['password']
-				if len(password)<10:					
-					alert = 'alert("Please enter password with more than 10 characters");'
-					return render(request, 'forum/name.html',{'form':form,'alert':alert,'title':"signup"})				
-				else:
-					a = form.save(commit=False)
-					a.password = hashlib.md5(a.password).hexdigest()
-					a.save()
-					return HttpResponse('You have been success fully registered<br>click <a href=/login>here</a> to login')
-			
+	if "user" in request.session:
+		return redirect(profile)
 	else:
-		form = userForm()
-	return render(request, 'forum/name.html',{'form':form,'title':"signup"})	
+		if request.method == 'POST':
+			form = userForm(request.POST)			
+			if form.is_valid():				
+					password = form.cleaned_data['password']
+					if len(password)<10:					
+						alert = 'alert("Please enter password with more than 10 characters");'
+						return render(request, 'forum/name.html',{'form':form,'alert':alert,'title':"signup"})				
+					else:
+						a = form.save(commit=False)
+						a.password = hashlib.md5(a.password).hexdigest()
+						a.save()
+						return HttpResponse('You have been success fully registered<br>click <a href=/login>here</a> to login')
+				
+		else:
+			form = userForm()
+		return render(request, 'forum/name.html',{'form':form,'title':"signup"})	
 
 
 def login(request):
