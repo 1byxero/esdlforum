@@ -1,5 +1,5 @@
 from django import forms
-from .models import user
+from .models import user,question
 import hashlib
 
 class userForm(forms.ModelForm):
@@ -18,6 +18,14 @@ class userForm(forms.ModelForm):
 class loginform(forms.Form):	
 	username = forms.CharField(label='Username', max_length=100,required = True)
 	password = forms.CharField(label='Password', max_length=100,required = True,widget = forms.PasswordInput())
+
+class questionForm(forms.ModelForm):
+	class Meta:
+		model = question
+		fields = ['questiontitle','questioncontent']
+		
+
+
 	
 
 

@@ -14,19 +14,27 @@ class user(models.Model):
 	def __unicode__(self):
 		return self.username
 
-#class question(models.Model):
-	# def __unicode__(self):
-	# 	return self
+class question(models.Model):
+	qid = models.IntegerField(primary_key=True)
+	questiontitle = models.CharField(max_length=200,blank = False)
+	questioncontent = models.TextField(blank = False)
+	answered = models.BooleanField(default = False)
+	askedby = models.ForeignKey('user')
+	#tags	
+	#importance	
+
+	def __unicode__(self):
+		return self.questiontitle
 
 
 class answer(models.Model):
 	aid = models.IntegerField(primary_key=True)
-	answercontent = models.CharField(max_length=2000,blank = False)
+	answercontent = models.TextField(blank = False)
 	user = models.ForeignKey('user')	
-	#question = models.ForeignKey('question')
+	question = models.ForeignKey('question',null = True)
 
 	def __unicode__(self):
-		return self.aid
+		return self.question
 
 
 	

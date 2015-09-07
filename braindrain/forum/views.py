@@ -4,7 +4,7 @@ from django.http import HttpResponse,HttpResponseRedirect
 from django.shortcuts import redirect
 from django.core.exceptions import ObjectDoesNotExist
 from django.views.decorators.csrf import csrf_exempt
-from .forms import userForm,loginform
+from .forms import userForm,loginform,questionForm
 from .models import user
 import hashlib
 
@@ -69,6 +69,9 @@ def login(request):
 
 @csrf_exempt
 def profile(request):
+	if "question" in request.POST:
+		return redirect(askquestion)
+
 	if "logout" in request.POST:		
 		del request.session['user']
 		return HttpResponse("successfully logged out")
@@ -90,6 +93,37 @@ def profile(request):
 			'answers':questionsanswered
 		}
 		return render(request, 'forum/profilepage.html',context)
+	else:
+		return HttpResponse("please login")
+
+def askquestion(request):
+	if 'user' in request.session:		
+		if 'ask' in request.POST:
+			form  = questionForm(request.POST)
+
+			if form.is_valid():
+				
+				print form.cleaned_data
+				return HttpResponse("form submitted")
+			else:
+				context = {
+				'form':form,
+				'user':request.session['user'],			
+			}
+			return render(request, 'forum/askquestion.html',context)
+
+
+		else:
+			form  = questionForm()
+			
+			context = {
+				'form':form,
+				'user':request.session['user'],
+			}
+
+
+			return render(request, 'forum/askquestion.html',context)
+
 	else:
 		return HttpResponse("please login")
 
