@@ -5,18 +5,39 @@ from django.shortcuts import redirect
 from django.core.exceptions import ObjectDoesNotExist
 from django.views.decorators.csrf import csrf_exempt
 from .forms import userForm,loginform,questionForm
-from .models import user
+from .models import user,question
 import hashlib
 
 
 
 # Create your views here.
 
-def index(request):
-	return HttpResponse("it worked")
+loginalert = "please login<br>click <a href=/login>here</a> to login"
 
-def thanks(request):
-	return render(request, 'forum/thanks.html',)	
+def index(request):	
+	#return HttpResponse("it worked")
+	questionlist = question.objects.all()
+
+	context = {
+		'questionlist':questionlist,
+	}
+
+	return render(request, 'forum/index.html',context)
+
+	# if 'user' in request.session:
+	# 	#user personalized page
+	# 	context {
+
+	# 	}
+	# 	return render(request,'forum/index.html',context)
+	# else:
+	# 	#generalized page
+	# 	context {
+
+	# 	}
+	# 	return render(request,'forum/index.html',context)
+
+
 
 @csrf_exempt
 def signup(request):
@@ -31,7 +52,7 @@ def signup(request):
 					a = form.save(commit=False)
 					a.password = hashlib.md5(a.password).hexdigest()
 					a.save()
-					return HttpResponseRedirect('/thanks/')
+					return HttpResponse('You have been success fully registered<br>click <a href=/login>here</a> to login')
 			
 	else:
 		form = userForm()
@@ -96,21 +117,24 @@ def profile(request):
 		}
 		return render(request, 'forum/profilepage.html',context)
 	else:
-		return HttpResponse("please login")
+		return HttpResponse(loginalert)
 
 def askquestion(request):
-	if 'user' in request.session:		
-		if 'ask' in request.POST:
+	if 'user' in request.session:
+		loggeduser = request.session['user']		
+		if 'ask' in request.POST:			
 			form  = questionForm(request.POST)
 
 			if form.is_valid():
-				
-				print form.cleaned_data
+
+				editableform = form.save(commit=False)
+				editableform.askedby = user.objects.get(username=loggeduser)
+				editableform.save()
 				return HttpResponse("form submitted")
 			else:
 				context = {
 				'form':form,
-				'user':request.session['user'],			
+				'user':loggeduser,			
 			}
 			return render(request, 'forum/askquestion.html',context)
 
@@ -120,13 +144,13 @@ def askquestion(request):
 			
 			context = {
 				'form':form,
-				'user':request.session['user'],
+				'user':loggeduser,
 			}
 
 
 			return render(request, 'forum/askquestion.html',context)
 
 	else:
-		return HttpResponse("please login")
+		return HttpResponse(loginalert)
 
 
