@@ -133,6 +133,9 @@ def askquestion(request):
 				editableform = form.save(commit=False)
 				editableform.askedby = user.objects.get(username=loggeduser)
 				editableform.save()
+				userinstancetoupdatequestionasked = user.objects.get(username=loggeduser)
+				userinstancetoupdatequestionasked.questionsasked = userinstancetoupdatequestionasked.questionsasked + 1
+				userinstancetoupdatequestionasked.save()
 				return HttpResponse("form submitted")
 			else:
 				context = {
