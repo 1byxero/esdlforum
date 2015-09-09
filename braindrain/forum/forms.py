@@ -18,12 +18,6 @@ class questionForm(forms.ModelForm):
 	class Meta:
 		model = question
 		fields = ['questiontitle','questioncontent']
-		
 
-
-	
-
-
-
-
-	
+class answerquestionForm(forms.Form):
+	answer = forms.CharField(label='answer',required=True,widget=forms.Textarea)

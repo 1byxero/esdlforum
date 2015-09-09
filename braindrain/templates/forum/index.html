@@ -16,7 +16,8 @@
 	
 	<body>
 
-	<table style="width:100%">	
+	<table style="width:100%">
+		<h4>hello {{user}} </h4>
 
 		<tr>
 		<th>Title</th>
@@ -28,9 +29,9 @@
 		{% for i in questionlist %}	
 			<tr>
 			<td>{{i}}</td>
-			<td>{{i.questioncontent}}</td>
+			<td><a href="answerquestion?qid={{i.qid}}">{{i.questioncontent}}</a></td>
 			<td> {% if i.answered%} yes {%else%} no {%endif%} </td>
-			<td>{{i.askedby}}</td>
+			<td>{{i.askedby}}</td>			
 			</tr>
 
 		{% endfor %}		

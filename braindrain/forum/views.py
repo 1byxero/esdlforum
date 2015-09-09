@@ -4,8 +4,8 @@ from django.http import HttpResponse,HttpResponseRedirect
 from django.shortcuts import redirect
 from django.core.exceptions import ObjectDoesNotExist
 from django.views.decorators.csrf import csrf_exempt
-from .forms import userForm,loginform,questionForm
-from .models import user,question
+from .forms import *
+from .models import *
 import hashlib
 
 
@@ -14,15 +14,25 @@ import hashlib
 
 loginalert = "please login<br>click <a href=/login>here</a> to login"
 
-def index(request):	
-	#return HttpResponse("it worked")
-	questionlist = question.objects.all()
+def index(request):
+	if 'user' in request.session:	
+		questionlist = question.objects.all()
 
-	context = {
-		'questionlist':questionlist,
-	}
+		context = {
+			'user':request.session['user'],
+			'questionlist':questionlist,
+		}
 
-	return render(request, 'forum/index.html',context)
+		return render(request, 'forum/index.html',context)
+	else:
+		questionlist = question.objects.all()
+
+		context = {			
+			'questionlist':questionlist,
+		}
+
+		return render(request, 'forum/index.html',context)
+
 
 	# if 'user' in request.session:
 	# 	#user personalized page
@@ -159,4 +169,58 @@ def askquestion(request):
 	else:
 		return HttpResponse(loginalert)
 
+def answerquestion(request):
+	if 'user' in request.session:
+		try:
+			qid = request.GET.get('qid')
+			questioninst = question.objects.get(qid=qid)
+			questiontitle = questioninst.questiontitle
+			questioncontent = questioninst.questioncontent
+
+			userlogged = request.session['user']		
+			if request.method == 'POST':
+				form = answerquestionForm(request.POST)
+
+				if form.is_valid():
+					print form.cleaned_data
+					answer = form.cleaned_data['answer']
+					if(len(answer)<200):
+						print len(answer)
+						alert = 'alert("Your answer is too short to submit");'
+						suggestion = "Elaborate your answer. Share all you've got!"
+						context = {
+							'form':form,
+							'alert':alert,
+							'suggestion':suggestion,
+							'user':userlogged,
+							'questiontitle':questiontitle,
+							'questioncontent':questioncontent,						
+						}
+						return render(request,'forum/answerquestion.html',context)
+					else:
+						alert = 'alert("Your answer will be submited");'					
+						context = {
+							'form':form,
+							'alert':alert,						
+							'user':userlogged,
+							'questiontitle':questiontitle,
+							'questioncontent':questioncontent,						
+						}
+						return render(request,'forum/answerquestion.html',context)
+
+			if request.method == 'GET':			
+				form = answerquestionForm()		
+
+				context = {
+							'form':form,						
+							'user':userlogged,
+							'questiontitle':questiontitle,
+							'questioncontent':questioncontent,
+						}
+				return render(request,'forum/answerquestion.html',context)
+		except ObjectDoesNotExist:			
+			return HttpResponse("No such question exists<br>")
+
+	else:
+		return HttpResponse(loginalert)
 

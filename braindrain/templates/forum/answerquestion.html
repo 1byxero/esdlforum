@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<title>{{title}}</title>
+	</head>
+	
+	<body>		
+		<h6>hello {{user}} </h6>
+		<br>
+		<h2>{{questiontitle}}</h2>
+		<h3>{{questioncontent}}</h3>
+
+		<form action = "." method="post" >{% csrf_token %}
+			{{ form }}					
+			<input type="submit" value = "Answer" name = "submit"/>		
+		</form>
+
+		<h5>{{suggestion}}</h5>
+
+	<script type="text/javascript">
+	{{alert|safe}}
+	</script>
+	</body>
+
+
+</html>
