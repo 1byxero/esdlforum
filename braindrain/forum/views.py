@@ -34,20 +34,6 @@ def index(request):
 		return render(request, 'forum/index.html',context)
 
 
-	# if 'user' in request.session:
-	# 	#user personalized page
-	# 	context {
-
-	# 	}
-	# 	return render(request,'forum/index.html',context)
-	# else:
-	# 	#generalized page
-	# 	context {
-
-	# 	}
-	# 	return render(request,'forum/index.html',context)
-
-
 
 @csrf_exempt
 def signup(request):
@@ -170,56 +156,54 @@ def askquestion(request):
 		return HttpResponse(loginalert)
 
 def answerquestion(request):
-	if 'user' in request.session:
-		try:
+	if 'user' in request.session:		
+		userlogged = request.session['user']		
+		if request.method == 'POST':
+			form = answerquestionForm(request.POST)			
+
+			if form.is_valid():				
+				print form.cleaned_data
+				answer = form.cleaned_data['answer']
+				if(len(answer)<200):
+					print len(answer)
+					alert = 'alert("Your answer is too short to submit");'
+					suggestion = "Elaborate your answer. Share all you've got!"
+					context = {
+						'form':form,
+						'alert':alert,
+						'suggestion':suggestion,
+						'user':userlogged,
+						'questiontitle':questiontitle,
+						'questioncontent':questioncontent,						
+					}
+					return render(request,'forum/answerquestion.html',context)
+				else:
+					alert = 'alert("Your answer will be submited");'					
+					context = {
+						'form':form,
+						'alert':alert,						
+						'user':userlogged,
+						'questiontitle':questiontitle,
+						'questioncontent':questioncontent,						
+					}
+					return render(request,'forum/answerquestion.html',context)
+
+		if request.method == 'GET':		
 			qid = request.GET.get('qid')
 			questioninst = question.objects.get(qid=qid)
 			questiontitle = questioninst.questiontitle
-			questioncontent = questioninst.questioncontent
+			questioncontent = questioninst.questioncontent	
+			
+			form = answerquestionForm()		
 
-			userlogged = request.session['user']		
-			if request.method == 'POST':
-				form = answerquestionForm(request.POST)
-
-				if form.is_valid():
-					print form.cleaned_data
-					answer = form.cleaned_data['answer']
-					if(len(answer)<200):
-						print len(answer)
-						alert = 'alert("Your answer is too short to submit");'
-						suggestion = "Elaborate your answer. Share all you've got!"
-						context = {
-							'form':form,
-							'alert':alert,
-							'suggestion':suggestion,
-							'user':userlogged,
-							'questiontitle':questiontitle,
-							'questioncontent':questioncontent,						
-						}
-						return render(request,'forum/answerquestion.html',context)
-					else:
-						alert = 'alert("Your answer will be submited");'					
-						context = {
-							'form':form,
-							'alert':alert,						
-							'user':userlogged,
-							'questiontitle':questiontitle,
-							'questioncontent':questioncontent,						
-						}
-						return render(request,'forum/answerquestion.html',context)
-
-			if request.method == 'GET':			
-				form = answerquestionForm()		
-
-				context = {
-							'form':form,						
-							'user':userlogged,
-							'questiontitle':questiontitle,
-							'questioncontent':questioncontent,
-						}
-				return render(request,'forum/answerquestion.html',context)
-		except ObjectDoesNotExist:			
-			return HttpResponse("No such question exists<br>")
+			context = {
+						'qid':qid,
+						'form':form,						
+						'user':userlogged,
+						'questiontitle':questiontitle,
+						'questioncontent':questioncontent,
+					}
+			return render(request,'forum/answerquestion.html',context)
 
 	else:
 		return HttpResponse(loginalert)

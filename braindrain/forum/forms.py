@@ -19,5 +19,10 @@ class questionForm(forms.ModelForm):
 		model = question
 		fields = ['questiontitle','questioncontent']
 
-class answerquestionForm(forms.Form):
+class aanswerquestionForm(forms.Form):
+	qid = forms.IntegerField(editable=False)
 	answer = forms.CharField(label='answer',required=True,widget=forms.Textarea)
+
+class answerquestionForm(forms.ModelForm):
+	class Meta:
+		model = answer
