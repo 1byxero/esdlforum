@@ -6,13 +6,21 @@
 	
 	<body>		
 		<h6>hello {{user}} </h6>
-		<br>
+		<br>				
 		<h2>{{questiontitle}}</h2>
-		<h3>{{questioncontent}}</h3>
+		<h3>{{questioncontent}}</h3>	
+		<h4>Asked by {{askedby}} </h4>
 
-		<form action = "." method="post" >{% csrf_token %}
-			{{ form }}					
-			<input type="submit" value = "Answer" name = "submit"/>		
+		{% if answered	%}
+		<h2>Answer by 
+		{% endif%}
+
+
+		<form action = "." method="post" >{% csrf_token %}			
+			{{ form }}						
+			<input id="id_url" name="url" type="hidden" value=" {{request.get_full_path}} " />
+			<input id="id_qid" name="qid" type="hidden" value="{{qid}}" />
+			<input type="submit" value = "Answer" name = "submit"/>
 		</form>
 
 		<h5>{{suggestion}}</h5>

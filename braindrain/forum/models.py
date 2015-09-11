@@ -30,11 +30,13 @@ class question(models.Model):
 class answer(models.Model):
 	aid = models.IntegerField(primary_key=True)
 	answercontent = models.TextField(blank = False)
-	user = models.ForeignKey('user')	
+	useranswered = models.ForeignKey('user')	
 	question = models.ForeignKey('question',null = True)
 
 	def __unicode__(self):
-		return self.question
+		questioninst = question.objects.filter(questiontitle=self.question)
+		print questioninst
+		return str(self.aid)
 
 
 	

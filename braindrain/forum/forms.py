@@ -1,5 +1,5 @@
 from django import forms
-from .models import user,question
+from .models import *
 import hashlib
 
 class userForm(forms.ModelForm):
@@ -19,10 +19,6 @@ class questionForm(forms.ModelForm):
 		model = question
 		fields = ['questiontitle','questioncontent']
 
-class aanswerquestionForm(forms.Form):
-	qid = forms.IntegerField(editable=False)
+class answerquestionForm(forms.Form):	
 	answer = forms.CharField(label='answer',required=True,widget=forms.Textarea)
 
-class answerquestionForm(forms.ModelForm):
-	class Meta:
-		model = answer
