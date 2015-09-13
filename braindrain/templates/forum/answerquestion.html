@@ -7,12 +7,18 @@
 	<body>		
 		<h6>hello {{user}} </h6>
 		<br>				
-		<h2>{{questiontitle}}</h2>
-		<h3>{{questioncontent}}</h3>	
-		<h4>Asked by {{askedby}} </h4>
+		<h2>Title: {{questiontitle}}</h2>
+		<h3>Question: {{questioncontent}}</h3>	
+		<h4>Asked by: {{askedby}} </h4>
 
-		{% if answered	%}
-		<h2>Answer by 
+		{% if answered %}		
+		{% for i in answerlist %}			
+		<p> {{i.answer}} </p>
+		<h2>Answer by {{i.by}} </h2>		
+		{% endfor %}
+		{% else %}
+		<h2>Be the first one to answer!
+		</h2>
 		{% endif%}
 
 

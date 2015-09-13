@@ -104,7 +104,7 @@ def profile(request):
 		uid = userinstance.uid
 		points = userinstance.points
 		questionsasked = userinstance.questionsasked
-		questionsanswered = userinstance.questionsanswered
+		questionsanswered = userinstance.questionsanswered		
 
 
 		context = {
@@ -170,11 +170,22 @@ def answerquestion(request):
 					questiontitle = questioninst.questiontitle
 					questioncontent = questioninst.questioncontent					
 					askedby = questioninst.askedby
-					answered = questioninst.answered					
+					answered = questioninst.answered
+					answerlist = []
+					answercontent = ""
+
+					if answered:
+						answerinst = answer.objects.filter(question=qid)
+						for i in answerinst:
+							answercontentinmodel = i.answercontent
+							answeredbyinmodel = i.useranswered
+							answerlistobject = 	{'answer':answercontentinmodel,'by':answeredbyinmodel,}
+					 		answerlist.append(answerlistobject)
+		
 					if form.is_valid():
 						#execute this if form is valid							
 						answercontent = form.cleaned_data['answer']
-						if(len(answercontent)<200):						
+						if(len(answercontent)<100):						
 							alert = 'alert("Your answer is too short to submit");'
 							suggestion = "Elaborate your answer. Share all you've got!"												
 							context = {
@@ -186,7 +197,9 @@ def answerquestion(request):
 								'suggestion':suggestion,
 								'questiontitle':questiontitle,
 								'questioncontent':questioncontent,						
-								'answered':answered,	
+								'answered':answered,
+								'answercontent':answercontent,
+								'answerlist':answerlist,
 							}
 							return render(request,'forum/answerquestion.html',context)
 						else:
@@ -212,7 +225,9 @@ def answerquestion(request):
 							'askedby':askedby,
 							'questiontitle':questiontitle,
 							'questioncontent':questioncontent,
-							'answered':answered,					
+							'answered':answered,
+							'answercontent':answercontent,
+							'answerlist':answerlist,				
 						}
 						return render(request,'forum/answerquestion.html',context)					
 				except ObjectDoesNotExist:
@@ -236,6 +251,17 @@ def answerquestion(request):
 				questioncontent = questioninst.questioncontent
 				askedby = questioninst.askedby				
 				answered = questioninst.answered
+				answerlist = []
+				answercontent = ""
+
+				if answered:					
+					answerinst = answer.objects.filter(question=qid)
+					for i in answerinst:						
+						answercontentinmodel = i.answercontent
+						answeredbyinmodel = i.useranswered
+						answerlistobject = 	{'answer':answercontentinmodel,'by':answeredbyinmodel,}
+				 		answerlist.append(answerlistobject)
+
 				form = answerquestionForm()		
 
 				context = {
@@ -246,6 +272,8 @@ def answerquestion(request):
 							'questiontitle':questiontitle,
 							'questioncontent':questioncontent,
 							'answered':answered,
+							'answercontent':answercontent,
+							'answerlist':answerlist,
 						}
 				return render(request,'forum/answerquestion.html',context)
 			else:
@@ -258,108 +286,3 @@ def answerquestion(request):
 
 
 
-
-
-
-"""
-
-
-if 'url' in request.POST:
-				url = request.POST.get('url')
-				url=url.split('=')				
-				if(len(url)==2):
-					#check if url is correct form i.e has only one get variable					
-					qid = url[1]
-					form = answerquestionForm(request.POST)
-					try:
-						#execute this if the qid exists in database
-						questioninst = question.objects.get(qid=qid)
-						questiontitle = questioninst.questiontitle
-						questioncontent = questioninst.questioncontent					
-						askedby = questioninst.askedby						
-						if form.is_valid():
-							#execute this if form is valid							
-							answercontent = form.cleaned_data['answer']
-							if(len(answercontent)<200):						
-								alert = 'alert("Your answer is too short to submit");'
-								suggestion = "Elaborate your answer. Share all you've got!"												
-								context = {
-									'qid':qid,
-									'form':form,
-									'user':loggeduser,
-									'alert':alert,															
-									'askedby':askedby,
-									'suggestion':suggestion,
-									'questiontitle':questiontitle,
-									'questioncontent':questioncontent,						
-								}
-								return render(request,'forum/answerquestion.html',context)
-							else:
-								userinst = user.objects.get(username=loggeduser)
-
-								answermodel = answer(answercontent=answercontent,useranswered=userinst,question=questioninst)
-								answermodel.save()
-								#saved answer
-								questioninst.answered = True
-								questioninst.save()
-								#updated question field								
-								userinst.questionsanswered = userinst.questionsanswered+1
-								userinst.save()
-								#updated user field
-								return HttpResponse("Your answer will be submited")
-							
-						else:
-							#execute this block if form is not valid 
-							context = {
-								'qid':qid,
-								'form':form,
-								'user':loggeduser,
-								'askedby':askedby,
-								'questiontitle':questiontitle,
-								'questioncontent':questioncontent,						
-							}
-							return render(request,'forum/answerquestion.html',context)
-					except ObjectDoesNotExist:
-						#condition tell it all
-						return HttpResponse("Something went Wrong!<br>Click <a href='/'>here</a> to check the questions")
-						print "except block"					
-				else:					
-					#post request forging handled by this block					
-					return HttpResponse("Something went Wrong!<br>Click <a href='/'>here</a> to check the questions")					
-
-			else:
-				#post request forging handled by this block				
-				return HttpResponse("Something went Wrong!<br>Click <a href='/'>here</a> to check the questions")	
-
-		elif 'qid' in request.GET:
-			#this block is executed if 
-
-			qid = request.GET.get('qid')
-			questioninst = question.objects.filter(qid=qid)
-			if questioninst:
-				questioninst = question.objects.get(qid=qid)
-				questiontitle = questioninst.questiontitle
-				questioncontent = questioninst.questioncontent
-				askedby = questioninst.askedby				
-				form = answerquestionForm()		
-
-				context = {
-							'qid':qid,
-							'form':form,						
-							'user':loggeduser,
-							'askedby':askedby,
-							'questiontitle':questiontitle,
-							'questioncontent':questioncontent,
-						}
-				return render(request,'forum/answerquestion.html',context)
-			else:
-				return HttpResponse("no such question exists!<br>Click <a href='/'>here</a> to check the questions")
-		else:
-			return HttpResponse("Select the question first!<br>Click <a href='/'>here</a> to check the questions")	
-	else:
-		return HttpResponse(loginalert)
-
-
-
-
-"""
