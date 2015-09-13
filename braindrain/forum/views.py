@@ -1,4 +1,6 @@
 from django import forms
+from django.core.mail import send_mail
+from django.conf import settings
 from django.shortcuts import render
 from django.http import HttpResponse,HttpResponseRedirect
 from django.shortcuts import redirect
@@ -131,7 +133,19 @@ def askquestion(request):
 				userinstancetoupdatequestionasked = user.objects.get(username=loggeduser)
 				userinstancetoupdatequestionasked.questionsasked = userinstancetoupdatequestionasked.questionsasked + 1
 				userinstancetoupdatequestionasked.save()
-				return HttpResponse("form submitted")
+				sendmailid = userinstancetoupdatequestionasked.email
+				mailsubject = "Notifications for Question"
+				mailbody = "Hello "+userinstancetoupdatequestionasked.name+"!\nWe will notify you when the question you've asked receives an answer!"
+				
+				send_mail(
+					mailsubject,
+					mailbody,
+					settings.EMAIL_HOST_USER,
+					[sendmailid],
+					fail_silently=False)
+
+
+				return HttpResponse("Question submitted")
 			else:
 				context = {
 				'form':form,
@@ -213,7 +227,19 @@ def answerquestion(request):
 							#updated question field								
 							userinst.questionsanswered = userinst.questionsanswered+1
 							userinst.save()
-							#updated user field
+
+							userwhoaskedquestioninst=user.objects.get(username=askedby)
+							sendmailid = userwhoaskedquestioninst.email
+							sendmailsubject = "Your question was answered!"
+							sendmailbody = "Hello "+userwhoaskedquestioninst.name+"!\nYour question with title "+questioninst.questiontitle+" has received an answer!"
+
+							send_mail(
+								sendmailsubject,
+								sendmailbody,
+								settings.EMAIL_HOST_USER,
+								[sendmailid],
+								fail_silently=False)
+
 							return HttpResponse("Your answer will be submited")
 						
 					else:

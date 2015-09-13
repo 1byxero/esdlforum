@@ -21,7 +21,8 @@
 		</h2>
 		{% endif%}
 
-
+		<h2>Add your own answer!
+		</h2>
 		<form action = "." method="post" >{% csrf_token %}			
 			{{ form }}						
 			<input id="id_url" name="url" type="hidden" value=" {{request.get_full_path}} " />
