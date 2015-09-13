@@ -17,19 +17,25 @@ import hashlib
 loginalert = "please login<br>click <a href=/login>here</a> to login"
 
 def index(request):
-	if 'user' in request.session:	
-		questionlist = question.objects.all()
+
+	questionlist = question.objects.all()
+	showquestions=True
+
+	if len(questionlist)==0:
+		showquestions=False
+
+	if 'user' in request.session:		
 
 		context = {
+			'showquestions':showquestions,
 			'user':request.session['user'],
 			'questionlist':questionlist,
 		}
 
 		return render(request, 'forum/index.html',context)
 	else:
-		questionlist = question.objects.all()
-
-		context = {			
+		context = {
+			'showquestions':showquestions,		
 			'questionlist':questionlist,
 		}
 

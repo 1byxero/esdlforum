@@ -19,6 +19,7 @@
 	<table style="width:100%">
 		<h4>hello {{user}} </h4>
 
+		{% if showquestions %}
 		<tr>
 		<th>Title</th>
 		<th>Content</th>
@@ -35,7 +36,13 @@
 			<td>{{i.askedby}}</td>			
 			</tr>
 
-		{% endfor %}		
+		{% endfor %}
+
+		{% else %}
+
+		<h3>Nobody has asked questions! You be the first to set this trend!</h3>
+
+		{% endif %}
 
 	</table>
 	<br>
