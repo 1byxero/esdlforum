@@ -54,7 +54,7 @@ def signup(request):
 					password = form.cleaned_data['password']
 					if len(password)<10:					
 						alert = 'alert("Please enter password with more than 10 characters");'
-						return render(request, 'forum/name.html',{'form':form,'alert':alert,'title':"signup"})				
+						return render(request, 'forum/signuplogin.html',{'form':form,'alert':alert,'title':"signup"})				
 					else:
 						a = form.save(commit=False)
 						a.password = hashlib.md5(a.password).hexdigest()
@@ -63,7 +63,7 @@ def signup(request):
 				
 		else:
 			form = userForm()
-		return render(request, 'forum/name.html',{'form':form,'title':"signup"})	
+		return render(request, 'forum/signuplogin.html',{'form':form,'title':"signup"})	
 
 
 def login(request):
@@ -84,18 +84,18 @@ def login(request):
 						return redirect(profile)
 					else:
 						alert = 'alert("Incorrect password");'
-						return render(request, 'forum/name.html',{'form':form,'alert':alert,'title':"login"})
+						return render(request, 'forum/signuplogin.html',{'form':form,'alert':alert,'title':"login"})
 				except ObjectDoesNotExist:
 					alert = 'alert("No user with given username exists");' #,%formusername
-				 	return render(request, 'forum/name.html',{'form':form,'alert':alert,'title':"login"})
+				 	return render(request, 'forum/signuplogin.html',{'form':form,'alert':alert,'title':"login"})
 			else:
 				form = loginform()
 				alert = 'alert("Please enter password");' #,%formusername
-				return render(request, 'forum/name.html',{'form':form,'alert':alert,'title':"login"})
+				return render(request, 'forum/signuplogin.html',{'form':form,'alert':alert,'title':"login"})
 
 		else:		
 			form = loginform()
-			return render(request, 'forum/name.html',{'form':form,'title':"login"})
+			return render(request, 'forum/signuplogin.html',{'form':form,'title':"login"})
 
 @csrf_exempt
 def profile(request):
