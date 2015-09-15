@@ -6,20 +6,21 @@ class user(models.Model):
 	name = models.CharField(max_length=200)
 	email = models.EmailField(max_length=200)	
 	username = models.CharField(max_length=200,unique = True)
-	password = models.CharField(max_length=200)
-	points = models.IntegerField(default = 0)
-	questionsasked = models.IntegerField(default = 0)
-	questionsanswered = models.IntegerField(default = 0)
+	password = models.CharField(max_length=200)	
+	isteacher = models.BooleanField(default=False)
 
 	def __unicode__(self):
 		return self.username
 
 class question(models.Model):
+	#these are normal questions
 	qid = models.IntegerField(primary_key=True)
 	questiontitle = models.CharField(max_length=200,blank = False)
 	questioncontent = models.TextField(blank = False)
 	answered = models.BooleanField(default = False)
-	askedby = models.ForeignKey('user')
+	askedby = models.ForeignKey('user', related_name='askedby')
+	askedto = models.ForeignKey('user', related_name='askedto',null=True)
+	isonetoone = models.BooleanField(default=False)
 	#tags	
 	#importance	
 
@@ -37,7 +38,6 @@ class answer(models.Model):
 		questioninst = question.objects.filter(questiontitle=self.question)
 		print questioninst
 		return str(self.aid)
-
 
 	
 

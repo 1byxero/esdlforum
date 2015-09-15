@@ -65,7 +65,7 @@
 				{% for i in questionlist %}	
 					<tr>
 					<td>{{i}}</td>
-					<td><a href="answerquestion?qid={{i.qid}}">{{i.questioncontent}}</a></td>
+					<td><a href="/answerquestion?qid={{i.qid}}">{{i.questioncontent}}</a></td>
 					<td> {% if i.answered%} yes {%else%} no {%endif%} </td>
 					<td>{{i.askedby}}</td>			
 					</tr>

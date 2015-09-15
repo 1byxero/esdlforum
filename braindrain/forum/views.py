@@ -7,7 +7,7 @@ from django.shortcuts import redirect
 from django.core.exceptions import ObjectDoesNotExist
 from django.views.decorators.csrf import csrf_exempt
 from .forms import *
-from .models import *
+from .models import * 
 import hashlib
 
 
@@ -17,7 +17,6 @@ import hashlib
 loginalert = "please login<br>click <a href=/login>here</a> to login"
 
 def index(request):
-
 	questionlist = question.objects.all()
 	showquestions=True
 
@@ -108,50 +107,75 @@ def profile(request):
 	
 	if 'user' in request.session:
 		username = request.session['user']
-		userinstance = user.objects.get(username=username)
-		uid = userinstance.uid
-		points = userinstance.points
-		questionsasked = userinstance.questionsasked
-		questionsanswered = userinstance.questionsanswered		
+		userinstance = user.objects.get(username=username)		
+		uid = userinstance.uid		 
+		isteacher = userinstance.isteacher
 
+		questionaskedlist = question.objects.filter(askedby=userinstance)
 
 		context = {
 			'user':username,
 			'uid':uid,
-			'points':points,
-			'questions':questionsasked,
-			'answers':questionsanswered
+			'isteacher':isteacher,
+			'questionlist':questionaskedlist,
 		}
+
+		if isteacher:
+			questionaskedtoyoulist = question.objects.filter(askedto=userinstance)
+			context.update({"questionaskedtoyoulist":questionaskedtoyoulist,})		
 		return render(request, 'forum/profilepage.html',context)
 	else:
 		return HttpResponse(loginalert)
 
+
+@csrf_exempt
 def askquestion(request):
 	if 'user' in request.session:
 		loggeduser = request.session['user']		
 		if 'ask' in request.POST:			
 			form  = questionForm(request.POST)
 
-			if form.is_valid():
-				editableform = form.save(commit=False)
-				editableform.askedby = user.objects.get(username=loggeduser)
-				editableform.save()
-				userinstancetoupdatequestionasked = user.objects.get(username=loggeduser)
-				userinstancetoupdatequestionasked.questionsasked = userinstancetoupdatequestionasked.questionsasked + 1
-				userinstancetoupdatequestionasked.save()
-				sendmailid = userinstancetoupdatequestionasked.email
-				mailsubject = "Notifications for Question"
-				mailbody = "Hello "+userinstancetoupdatequestionasked.name+"!\nWe will notify you when the question you've asked receives an answer!"
-				
-				send_mail(
-					mailsubject,
-					mailbody,
-					settings.EMAIL_HOST_USER,
-					[sendmailid],
-					fail_silently=False)
+			if form.is_valid():								
+				if form.cleaned_data['isonetoone'] and form.cleaned_data['askedto']==None:
+					alert = "alert('Select teacher to whom you want to ask the question!');"
+					context = {
+						'form':form,
+						'user':loggeduser,
+						'alert':alert,
+						}
+					return render(request, 'forum/askquestion.html',context)
+				else:																			
+					questiontitle = form.cleaned_data['questiontitle']
+					questioncontent = form.cleaned_data['questioncontent']
+					isonetoone = form.cleaned_data['isonetoone']																					
+					askedby = user.objects.get(username=loggeduser)
+					if isonetoone:
+						askedto = form.cleaned_data['askedto']
+						questioninst = question(questiontitle=questiontitle,questioncontent=questioncontent,isonetoone=isonetoone,askedto=askedto,askedby=askedby)
+						sendmailidtoteacher = askedto.email
+						mailsubjecttoteacher = "A question was asked to you!"
+						mailbodytoteacher = "Hello "+askedto.name+"!\nA question was asked to you by "+askedby.name+"!"
+						send_mail(
+							mailsubjecttoteacher,
+							mailbodytoteacher,
+							settings.EMAIL_HOST_USER,
+							[sendmailidtoteacher],
+							fail_silently=False)
+					else:
+						questioninst = question(questiontitle=questiontitle,questioncontent=questioncontent,isonetoone=isonetoone,askedby=askedby)
+					questioninst.save()										
+					#here askedby has model instance of question asker
+					sendmailid = askedby.email
+					mailsubject = "Notifications for Question"
+					mailbody = "Hello "+askedby.name+"!\nWe will notify you when the question you've asked receives an answer!"					
+					send_mail(
+						mailsubject,
+						mailbody,
+						settings.EMAIL_HOST_USER,
+						[sendmailid],
+						fail_silently=False)
+					return HttpResponse("Question submitted")
 
-
-				return HttpResponse("Question submitted")
 			else:
 				context = {
 				'form':form,
@@ -229,10 +253,7 @@ def answerquestion(request):
 							answermodel.save()
 							#saved answer
 							questioninst.answered = True
-							questioninst.save()
-							#updated question field								
-							userinst.questionsanswered = userinst.questionsanswered+1
-							userinst.save()
+							questioninst.save()							
 
 							userwhoaskedquestioninst=user.objects.get(username=askedby)
 							sendmailid = userwhoaskedquestioninst.email
@@ -263,13 +284,11 @@ def answerquestion(request):
 						}
 						return render(request,'forum/answerquestion.html',context)					
 				except ObjectDoesNotExist:
-					#post request forging handled by this block					
-					print "first"
+					#post request forging handled by this block										
 					return HttpResponse("Something went Wrong!<br>Click <a href='/'>here</a> to check the questions")					
 
 			else:
-				#post request forging handled by this block				
-				print "second"
+				#post request forging handled by this block								
 				return HttpResponse("Something went Wrong!<br>Click <a href='/'>here</a> to check the questions")	
 
 		elif 'qid' in request.GET:

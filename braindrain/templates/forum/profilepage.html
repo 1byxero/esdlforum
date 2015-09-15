@@ -6,16 +6,77 @@
 	
 	<body>
 		<p>Hello {{user}}</p>
-		<p>Your Uid is {{uid}}</p>
-		<p>Your points are {{points}}</p>
-		<p>You have asked {{questions}} questions</p>
-		<p>You have answered {{answers}} questions</p>
+		<p>Your Uid is {{uid}}</p>		
 		</p>Click <a href="/">here</a> to check questions</p>
 		<form action = "." method="post" >
 			{% csrf_token %}
 			<input type="submit" value="logout" name = "logout"/>
 			<input type="submit" value="question" name = "question"/>
-		</form>		
+		</form>	
+
+		<br>
+
+		<div>
+			<h4>Questions you've asked are</h4>
+			<table>
+			
+
+				<tr>
+				<th>Title</th>
+				<th>Content</th>
+				<th>Answered</th>
+				<th>Submitted by</th>
+
+				</tr>		
+
+				{% for i in questionlist %}	
+					<tr>
+					<td>{{i}}</td>
+					<td><a href="/answerquestion?qid={{i.qid}}">{{i.questioncontent}}</a></td>
+					<td> {% if i.answered%} yes {%else%} no {%endif%} </td>
+					<td>{{i.askedby}}</td>			
+					</tr>
+
+				{% endfor %}
+
+			</table>
+
+		</div>
+
+		<br>
+
+		{% if isteacher %}
+
+		<div>
+			<h4>Questions asked to you are</h4>
+			<table>
+			
+
+				<tr>
+				<th>Title</th>
+				<th>Content</th>
+				<th>Answered</th>
+				<th>Submitted by</th>
+
+				</tr>		
+
+				{% for i in questionaskedtoyoulist %}	
+					<tr>
+					<td>{{i}}</td>
+					<td><a href="/answerquestion?qid={{i.qid}}">{{i.questioncontent}}</a></td>
+					<td> {% if i.answered%} yes {%else%} no {%endif%} </td>
+					<td>{{i.askedby}}</td>			
+					</tr>
+
+				{% endfor %}
+
+			</table>
+
+		</div>
+
+		{% endif %}
+
+
 	</body>
 
 </html>

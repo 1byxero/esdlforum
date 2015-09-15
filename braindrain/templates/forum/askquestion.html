@@ -1,18 +1,58 @@
+{% load staticfiles%}
+
 <!DOCTYPE html>
 <html>
 	<head>
 		<title>{{title}}</title>
-	</head>
+		<style type="text/css">
+
+		body {
+  padding-top: 70px;
+  padding-bottom: 30px;
+}
+
+.theme-dropdown .dropdown-menu {
+  position: static;
+  display: block;
+  margin-bottom: 20px;
+}
+
+.theme-showcase > p > .btn {
+  margin: 5px 0;
+}
+
+.theme-showcase .navbar .container {
+  width: auto;
+}
+
+		</style> 
+
+
+		 <!-- Bootstrap core CSS -->
+    <link href="{% static 'forum/css//bootstrap.min.css'%} " rel="stylesheet">
+    <!-- Bootstrap theme -->
+    <link href="{% static 'forum/css/bootstrap-theme.min.css'%} " rel="stylesheet">  
+   
+
+
+
+
+	</head>	
 	
-	<body>		
-		<h1>hello {{user}} </h1>
-		<form action = "." method="post" >{% csrf_token %}
+	<body>
+
+		<div class="col-md-2">
+
+			<form action = "." method="post" >{% csrf_token %}
 			{{ form }}					
 			<input type="submit" value="ask question" name = "ask"/>		
-		</form>		
+			</form>		
+		</div>
 	<script type="text/javascript">
-	{{alert}}
+	{{alert|safe}}
 	</script>
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
+	<script src="{% static 'forum/js/bootstrap.min.js' %}"></script>    
 	</body>
 
 
