@@ -15,20 +15,25 @@
 		{% for i in answerlist %}			
 		<p> {{i.answer}} </p>
 		<h2>Answer by {{i.by}} </h2>		
-		{% endfor %}
-		{% else %}
-		<h2>Be the first one to answer!
-		</h2>
+		{% endfor %}		
 		{% endif%}
 
-		<h2>Add your own answer!
+		{% if cananswer %}
+		<h2>Be the first one to answer!
 		</h2>
+
 		<form action = "." method="post" >{% csrf_token %}			
 			{{ form }}						
 			<input id="id_url" name="url" type="hidden" value=" {{request.get_full_path}} " />
 			<input id="id_qid" name="qid" type="hidden" value="{{qid}}" />
 			<input type="submit" value = "Answer" name = "submit"/>
 		</form>
+
+		{% else %}
+
+		<h2>Since this question was asked to a specific teacher it cannot be answered by you</h2>
+
+		{% endif %}
 
 		<h5>{{suggestion}}</h5>
 

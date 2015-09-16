@@ -217,6 +217,10 @@ def answerquestion(request):
 					answered = questioninst.answered
 					answerlist = []
 					answercontent = ""
+					askedto = questioninst.askedto
+					cananswer = True
+					if askedto!=None and askedto!=user.objects.get(username=loggeduser):
+						cananswer = False
 
 					if answered:
 						answerinst = answer.objects.filter(question=qid)
@@ -236,6 +240,7 @@ def answerquestion(request):
 								'qid':qid,
 								'form':form,
 								'user':loggeduser,
+								'cananswer':cananswer,
 								'alert':alert,															
 								'askedby':askedby,
 								'suggestion':suggestion,
@@ -244,7 +249,7 @@ def answerquestion(request):
 								'answered':answered,
 								'answercontent':answercontent,
 								'answerlist':answerlist,
-							}
+							}							
 							return render(request,'forum/answerquestion.html',context)
 						else:
 							userinst = user.objects.get(username=loggeduser)
@@ -270,10 +275,13 @@ def answerquestion(request):
 							return HttpResponse("Your answer will be submited")
 						
 					else:
-						#execute this block if form is not valid 
+						#execute this block if form is not valid
+
+
 						context = {
 							'qid':qid,
 							'form':form,
+							'cananswer':cananswer,
 							'user':loggeduser,
 							'askedby':askedby,
 							'questiontitle':questiontitle,
@@ -292,7 +300,7 @@ def answerquestion(request):
 				return HttpResponse("Something went Wrong!<br>Click <a href='/'>here</a> to check the questions")	
 
 		elif 'qid' in request.GET:
-			#this block is executed if 
+			#this block is executed if when the question link on index page is executed
 
 			qid = request.GET.get('qid')
 			questioninst = question.objects.filter(qid=qid)
@@ -302,8 +310,12 @@ def answerquestion(request):
 				questioncontent = questioninst.questioncontent
 				askedby = questioninst.askedby				
 				answered = questioninst.answered
+				askedto = questioninst.askedto	
+
+
 				answerlist = []
 				answercontent = ""
+				cananswer = True
 
 				if answered:					
 					answerinst = answer.objects.filter(question=qid)
@@ -313,19 +325,24 @@ def answerquestion(request):
 						answerlistobject = 	{'answer':answercontentinmodel,'by':answeredbyinmodel,}
 				 		answerlist.append(answerlistobject)
 
-				form = answerquestionForm()		
+				form = answerquestionForm()						
+				if askedto!=None and askedto!=user.objects.get(username=loggeduser):
+					cananswer = False
 
-				context = {
+
+				context = {							
 							'qid':qid,
-							'form':form,						
-							'user':loggeduser,
-							'askedby':askedby,
+							'form':form,
+							'cananswer':cananswer,
+							'askedby':askedby,							
+							'user':loggeduser,							
 							'questiontitle':questiontitle,
 							'questioncontent':questioncontent,
 							'answered':answered,
 							'answercontent':answercontent,
 							'answerlist':answerlist,
 						}
+
 				return render(request,'forum/answerquestion.html',context)
 			else:
 				return HttpResponse("no such question exists!<br>Click <a href='/'>here</a> to check the questions")
