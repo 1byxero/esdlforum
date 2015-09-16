@@ -111,18 +111,22 @@ def profile(request):
 		uid = userinstance.uid		 
 		isteacher = userinstance.isteacher
 
-		questionaskedlist = question.objects.filter(askedby=userinstance)
+		questionaskedlist = question.objects.filter(askedby=userinstance)		
 
 		context = {
 			'user':username,
-			'uid':uid,
-			'isteacher':isteacher,
-			'questionlist':questionaskedlist,
+			'uid':uid,			
+			'questionlist':questionaskedlist,			
 		}
 
 		if isteacher:
 			questionaskedtoyoulist = question.objects.filter(askedto=userinstance)
-			context.update({"questionaskedtoyoulist":questionaskedtoyoulist,})		
+			noofquestionsasked = questionaskedtoyoulist.count()				
+			if noofquestionsasked>0:
+				showquestionsaskedtoyou = True
+			else:
+				showquestionsaskedtoyou = False
+			context.update({"questionaskedtoyoulist":questionaskedtoyoulist,'showquestionsaskedtoyou':showquestionsaskedtoyou,})		
 		return render(request, 'forum/profilepage.html',context)
 	else:
 		return HttpResponse(loginalert)

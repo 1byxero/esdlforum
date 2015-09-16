@@ -3,8 +3,17 @@
 	<head>
 		<title>{{title}}</title>
 	</head>
+	<style type="text/css">
+
+	table, th, td {
+    border: 1px solid black;
+    border-collapse: collapse;
+}
+
+	</style>
 	
 	<body>
+	<div>
 		<p>Hello {{user}}</p>
 		<p>Your Uid is {{uid}}</p>		
 		</p>Click <a href="/">here</a> to check questions</p>
@@ -13,10 +22,11 @@
 			<input type="submit" value="logout" name = "logout"/>
 			<input type="submit" value="question" name = "question"/>
 		</form>	
-
+	</div>	
+	
 		<br>
 
-		<div>
+	<div>			
 			<h4>Questions you've asked are</h4>
 			<table>
 			
@@ -45,7 +55,7 @@
 
 		<br>
 
-		{% if isteacher %}
+		{% if showquestionsaskedtoyou %}
 
 		<div>
 			<h4>Questions asked to you are</h4>
