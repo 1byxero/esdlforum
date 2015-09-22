@@ -1,11 +1,10 @@
 from django import forms
 from .models import *
-import hashlib
 
 class userForm(forms.ModelForm):
 	class Meta:
 		model = user
-		exclude = ['uid','questionsasked','questionsanswered','points']
+		exclude = ['uid','isteacher']
 		widgets = {
 		'password': forms.PasswordInput(),
 		}
@@ -20,10 +19,9 @@ class questionForm(forms.Form):
 	isonetoone = forms.BooleanField(label= 'Ask to teacher',required=False)	
 	askedto = forms.ModelChoiceField(label='Question asked to',queryset=user.objects.filter(isteacher=True),required=False)
 
-
-
-
-
 class answerquestionForm(forms.Form):	
 	answer = forms.CharField(label='answer',required=True,widget=forms.Textarea)
+
+class searchquestionForm(forms.Form):
+	question = forms.CharField(label='Question',required = True,widget=forms.Textarea)
 

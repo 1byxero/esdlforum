@@ -8,6 +8,8 @@ class user(models.Model):
 	username = models.CharField(max_length=200,unique = True)
 	password = models.CharField(max_length=200)	
 	isteacher = models.BooleanField(default=False)
+	tag1 = models.ForeignKey('tags',null=True,related_name='tag1')
+	tag2 = models.ForeignKey('tags',null=True,related_name='tag2')
 
 	def __unicode__(self):
 		return self.username
@@ -40,7 +42,9 @@ class answer(models.Model):
 		return str(self.aid)
 
 	
-
+class tags(models.Model):
+	tagid = models.AutoField(primary_key=True)
+	name = models.CharField(max_length=30,blank=False)
 	
 
 
