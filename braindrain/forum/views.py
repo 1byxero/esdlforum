@@ -130,21 +130,21 @@ def profile(request):
 		return render(request, 'forum/profilepage.html',context)
 	else:
 		return HttpResponse(loginalert)
-
-def checkquestionexists(request):
+@csrf_exempt
+def search(request):	
 	if 'user' in request.session:
+		user = request.session['user']
 		if request.method == 'POST':
-			form = searchquestionForm(request.POST)		
-			alert = ""	
+			form = searchquestionForm(request.POST)
 
 			if form.is_valid():
-				questioncontent = form.cleaned_data['question']			
-					
+
 				stopwords = ['a', 'about', 'above', 'across', 'after', 'again', 'against', 'all', 'almost', 'alone', 'along', 'already', 'also', 'although', 'always', 'among', 'an', 'and', 'another', 'any', 'anybody', 'anyone', 'anything', 'anywhere', 'are', 'area', 'areas', 'around', 'as', 'ask', 'asked', 'asking', 'asks', 'at', 'away', 'b', 'back', 'backed', 'backing', 'backs', 'be', 'became', 'because', 'become', 'becomes', 'been', 'before', 'began', 'behind', 'being', 'beings', 'best', 'better', 'between', 'big', 'both', 'but', 'by', 'c', 'came', 'can', 'cannot', 'case', 'cases', 'certain', 'certainly', 'clear', 'clearly', 'come', 'could', 'd', 'did', 'differ', 'different', 'differently', 'do', 'does', 'done', 'down', 'down', 'downed', 'downing', 'downs', 'during', 'e', 'each', 'early', 'either', 'end', 'ended', 'ending', 'ends', 'enough', 'even', 'evenly', 'ever', 'every', 'everybody', 'everyone', 'everything', 'everywhere', 'f', 'face', 'faces', 'fact', 'facts', 'far', 'felt', 'few', 'find', 'finds', 'first', 'for', 'four', 'from', 'full', 'fully', 'further', 'furthered', 'furthering', 'furthers', 'g', 'gave', 'general', 'generally', 'get', 'gets', 'give', 'given', 'gives', 'go', 'going', 'good', 'goods', 'got', 'great', 'greater', 'greatest', 'group', 'grouped', 'grouping', 'groups', 'h', 'had', 'has', 'have', 'having', 'he', 'her', 'here', 'herself', 'high', 'high', 'high', 'higher', 'highest', 'him', 'himself', 'his', 'how', 'however', 'i', 'if', 'important', 'in', 'interest', 'interested', 'interesting', 'interests', 'into', 'is', 'it', 'its', 'itself', 'j', 'just', 'k', 'keep', 'keeps', 'kind', 'knew', 'know', 'known', 'knows', 'l', 'large', 'largely', 'last', 'later', 'latest', 'least', 'less', 'let', 'lets', 'like', 'likely', 'long', 'longer', 'longest', 'm', 'made', 'make', 'making', 'man', 'many', 'may', 'me', 'member', 'members', 'men', 'might', 'more', 'most', 'mostly', 'mr', 'mrs', 'much', 'must', 'my', 'myself', 'n', 'necessary', 'need', 'needed', 'needing', 'needs', 'never', 'new', 'new', 'newer', 'newest', 'next', 'no', 'nobody', 'non', 'noone', 'not', 'nothing', 'now', 'nowhere', 'number', 'numbers', 'o', 'of', 'off', 'often', 'old', 'older', 'oldest', 'on', 'once', 'one', 'only', 'open', 'opened', 'opening', 'opens', 'or', 'order', 'ordered', 'ordering', 'orders', 'other', 'others', 'our', 'out', 'over', 'p', 'part', 'parted', 'parting', 'parts', 'per', 'perhaps', 'place', 'places', 'point', 'pointed', 'pointing', 'points', 'possible', 'present', 'presented', 'presenting', 'presents', 'problem', 'problems', 'put', 'puts', 'q', 'quite', 'r', 'rather', 'really', 'right', 'right', 'room', 'rooms', 's', 'said', 'same', 'saw', 'say', 'says', 'second', 'seconds', 'see', 'seem', 'seemed', 'seeming', 'seems', 'sees', 'several', 'shall', 'she', 'should', 'show', 'showed', 'showing', 'shows', 'side', 'sides', 'since', 'small', 'smaller', 'smallest', 'so', 'some', 'somebody', 'someone', 'something', 'somewhere', 'state', 'states', 'still', 'still', 'such', 'sure', 't', 'take', 'taken', 'than', 'that', 'the', 'their', 'them', 'then', 'there', 'therefore', 'these', 'they', 'thing', 'things', 'think', 'thinks', 'this', 'those', 'though', 'thought', 'thoughts', 'three', 'through', 'thus', 'to', 'today', 'together', 'too', 'took', 'toward', 'turn', 'turned', 'turning', 'turns', 'two', 'u', 'under', 'until', 'up', 'upon', 'us', 'use', 'used', 'uses', 'v', 'very', 'w', 'want', 'wanted', 'wanting', 'wants', 'was', 'way', 'ways', 'we', 'well', 'wells', 'went', 'were', 'what', 'when', 'where', 'whether', 'which', 'while', 'who', 'whole', 'whose', 'why', 'will', 'with', 'within', 'without', 'work', 'worked', 'working', 'works', 'would', 'x', 'y', 'year', 'years', 'yet', 'you', 'young', 'younger', 'youngest', 'your', 'yours', 'z', 'afterwards', 'am', 'amongst', 'amoungst', 'amount', 'anyhow', 'anyway', 'becoming', 'beforehand', 'below', 'beside', 'besides', 'beyond', 'bill', 'bottom', 'call', 'cant', 'co', 'con', 'couldnt', 'cry', 'de', 'describe', 'detail', 'due', 'eg', 'eight', 'eleven', 'else', 'elsewhere', 'empty', 'etc', 'except', 'fifteen', 'fify', 'fill', 'fire', 'five', 'former', 'formerly', 'forty', 'found', 'front', 'hasnt', 'hence', 'hereafter', 'hereby', 'herein', 'hereupon', 'hers', 'hundred', 'ie', 'inc', 'indeed', 'latter', 'latterly', 'ltd', 'meanwhile', 'mill', 'mine', 'moreover', 'move', 'name', 'namely', 'neither', 'nevertheless', 'nine', 'none', 'nor', 'onto', 'otherwise', 'ours', 'ourselves', 'own', 'please', 're', 'serious', 'sincere', 'six', 'sixty', 'somehow', 'sometime', 'sometimes', 'system', 'ten', 'themselves', 'thence', 'thereafter', 'thereby', 'therein', 'thereupon', 'thickv', 'thin', 'third', 'throughout', 'thru', 'top', 'towards', 'twelve', 'twenty', 'un', 'via', 'whatever', 'whence', 'whenever', 'whereafter', 'whereas', 'whereby', 'wherein', 'whereupon', 'wherever', 'whither', 'whoever', 'whom', 'yourself', 'yourselves']
-				
+
 				searchquestion = str(form.cleaned_data['question']).split(" ")
 
 				questiontags=[]
+				
 				for i in searchquestion:
 					if i.lower() not in stopwords:
 						questiontags.append(i)				
@@ -155,34 +155,53 @@ def checkquestionexists(request):
 					check = ''.join(e for e in i if e.isalnum())
 					questiontagswithoutspecialchars.append(check)
 
-				print questiontagswithoutspecialchars				
+				searchresult = []
 
-				suggestion = "Select appropriate tags!"
+				for i in questiontagswithoutspecialchars:
+					print i
+					results = question.objects.filter(tag=i)				
+
+				if results.count()>0:
+					for i in results:
+						searchresult.append(i)
+					showquestions = True
+
 				context = {
-					'form':formprint,
-					'suggestion':suggestion,
+						'user':user,						
+					}
 
-				}
-				
-				return render(request,'forum/search.html',context)				
+				if len(searchresult)>0:					
+					context = {
+						'user':user,
+						'showquestions':showquestions,
+						'questionlist':searchresult,
+					}
+
+				print searchresult
+
+				return render(request,"forum/searchresult.html",context)
+
+
 
 			else:
-				alert = "alert('Something went wrong!');"
 
-			context = {
-				'alert':alert,
-				'form':form
-			}
+				context = {
 
-			return render(request,'forum/search.html',context)			
+					'form':form,
+					'alert':"Something Went Wrong!",
+				}
+
+				return render(request,"forum/search.html",context)
+
 		else:
 			form = searchquestionForm()
+
 			context = {
-				'form':form
+				'form':form,				
 			}
-			return render(request,'forum/search.html',context) 			
-		
-		
+
+			return render(request,'forum/search.html',context)
+
 	else:
 		return HttpResponse(loginalert)
 

@@ -40,9 +40,9 @@ class answer(models.Model):
 		return str(self.aid)
 
 	
-class tags(models.Model):
-	tagid = models.AutoField(primary_key=True)
-	name = models.CharField(max_length=30,blank=False)
+class tags(models.Model):	
+	name = models.CharField(max_length=30,blank=False,primary_key=True)
+
 	def __unicode__(self):
 		return self.name
 
