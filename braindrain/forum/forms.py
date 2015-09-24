@@ -18,10 +18,13 @@ class questionForm(forms.Form):
 	questioncontent = forms.CharField(label='Question',required = True,widget=forms.Textarea)
 	isonetoone = forms.BooleanField(label= 'Ask to teacher',required=False)	
 	askedto = forms.ModelChoiceField(label='Question asked to',queryset=user.objects.filter(isteacher=True),required=False)
+	tags = forms.ModelChoiceField(label='Select Tag',queryset=tags.objects.all(),required=True)
+
 
 class answerquestionForm(forms.Form):	
 	answer = forms.CharField(label='answer',required=True,widget=forms.Textarea)
 
 class searchquestionForm(forms.Form):
 	question = forms.CharField(label='Question',required = True,widget=forms.Textarea)
+
 

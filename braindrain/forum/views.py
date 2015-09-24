@@ -134,9 +134,12 @@ def profile(request):
 def checkquestionexists(request):
 	if 'user' in request.session:
 		if request.method == 'POST':
-			form = searchquestionForm(request.POST)
+			form = searchquestionForm(request.POST)		
+			alert = ""	
 
 			if form.is_valid():
+				questioncontent = form.cleaned_data['question']			
+					
 				stopwords = ['a', 'about', 'above', 'across', 'after', 'again', 'against', 'all', 'almost', 'alone', 'along', 'already', 'also', 'although', 'always', 'among', 'an', 'and', 'another', 'any', 'anybody', 'anyone', 'anything', 'anywhere', 'are', 'area', 'areas', 'around', 'as', 'ask', 'asked', 'asking', 'asks', 'at', 'away', 'b', 'back', 'backed', 'backing', 'backs', 'be', 'became', 'because', 'become', 'becomes', 'been', 'before', 'began', 'behind', 'being', 'beings', 'best', 'better', 'between', 'big', 'both', 'but', 'by', 'c', 'came', 'can', 'cannot', 'case', 'cases', 'certain', 'certainly', 'clear', 'clearly', 'come', 'could', 'd', 'did', 'differ', 'different', 'differently', 'do', 'does', 'done', 'down', 'down', 'downed', 'downing', 'downs', 'during', 'e', 'each', 'early', 'either', 'end', 'ended', 'ending', 'ends', 'enough', 'even', 'evenly', 'ever', 'every', 'everybody', 'everyone', 'everything', 'everywhere', 'f', 'face', 'faces', 'fact', 'facts', 'far', 'felt', 'few', 'find', 'finds', 'first', 'for', 'four', 'from', 'full', 'fully', 'further', 'furthered', 'furthering', 'furthers', 'g', 'gave', 'general', 'generally', 'get', 'gets', 'give', 'given', 'gives', 'go', 'going', 'good', 'goods', 'got', 'great', 'greater', 'greatest', 'group', 'grouped', 'grouping', 'groups', 'h', 'had', 'has', 'have', 'having', 'he', 'her', 'here', 'herself', 'high', 'high', 'high', 'higher', 'highest', 'him', 'himself', 'his', 'how', 'however', 'i', 'if', 'important', 'in', 'interest', 'interested', 'interesting', 'interests', 'into', 'is', 'it', 'its', 'itself', 'j', 'just', 'k', 'keep', 'keeps', 'kind', 'knew', 'know', 'known', 'knows', 'l', 'large', 'largely', 'last', 'later', 'latest', 'least', 'less', 'let', 'lets', 'like', 'likely', 'long', 'longer', 'longest', 'm', 'made', 'make', 'making', 'man', 'many', 'may', 'me', 'member', 'members', 'men', 'might', 'more', 'most', 'mostly', 'mr', 'mrs', 'much', 'must', 'my', 'myself', 'n', 'necessary', 'need', 'needed', 'needing', 'needs', 'never', 'new', 'new', 'newer', 'newest', 'next', 'no', 'nobody', 'non', 'noone', 'not', 'nothing', 'now', 'nowhere', 'number', 'numbers', 'o', 'of', 'off', 'often', 'old', 'older', 'oldest', 'on', 'once', 'one', 'only', 'open', 'opened', 'opening', 'opens', 'or', 'order', 'ordered', 'ordering', 'orders', 'other', 'others', 'our', 'out', 'over', 'p', 'part', 'parted', 'parting', 'parts', 'per', 'perhaps', 'place', 'places', 'point', 'pointed', 'pointing', 'points', 'possible', 'present', 'presented', 'presenting', 'presents', 'problem', 'problems', 'put', 'puts', 'q', 'quite', 'r', 'rather', 'really', 'right', 'right', 'room', 'rooms', 's', 'said', 'same', 'saw', 'say', 'says', 'second', 'seconds', 'see', 'seem', 'seemed', 'seeming', 'seems', 'sees', 'several', 'shall', 'she', 'should', 'show', 'showed', 'showing', 'shows', 'side', 'sides', 'since', 'small', 'smaller', 'smallest', 'so', 'some', 'somebody', 'someone', 'something', 'somewhere', 'state', 'states', 'still', 'still', 'such', 'sure', 't', 'take', 'taken', 'than', 'that', 'the', 'their', 'them', 'then', 'there', 'therefore', 'these', 'they', 'thing', 'things', 'think', 'thinks', 'this', 'those', 'though', 'thought', 'thoughts', 'three', 'through', 'thus', 'to', 'today', 'together', 'too', 'took', 'toward', 'turn', 'turned', 'turning', 'turns', 'two', 'u', 'under', 'until', 'up', 'upon', 'us', 'use', 'used', 'uses', 'v', 'very', 'w', 'want', 'wanted', 'wanting', 'wants', 'was', 'way', 'ways', 'we', 'well', 'wells', 'went', 'were', 'what', 'when', 'where', 'whether', 'which', 'while', 'who', 'whole', 'whose', 'why', 'will', 'with', 'within', 'without', 'work', 'worked', 'working', 'works', 'would', 'x', 'y', 'year', 'years', 'yet', 'you', 'young', 'younger', 'youngest', 'your', 'yours', 'z', 'afterwards', 'am', 'amongst', 'amoungst', 'amount', 'anyhow', 'anyway', 'becoming', 'beforehand', 'below', 'beside', 'besides', 'beyond', 'bill', 'bottom', 'call', 'cant', 'co', 'con', 'couldnt', 'cry', 'de', 'describe', 'detail', 'due', 'eg', 'eight', 'eleven', 'else', 'elsewhere', 'empty', 'etc', 'except', 'fifteen', 'fify', 'fill', 'fire', 'five', 'former', 'formerly', 'forty', 'found', 'front', 'hasnt', 'hence', 'hereafter', 'hereby', 'herein', 'hereupon', 'hers', 'hundred', 'ie', 'inc', 'indeed', 'latter', 'latterly', 'ltd', 'meanwhile', 'mill', 'mine', 'moreover', 'move', 'name', 'namely', 'neither', 'nevertheless', 'nine', 'none', 'nor', 'onto', 'otherwise', 'ours', 'ourselves', 'own', 'please', 're', 'serious', 'sincere', 'six', 'sixty', 'somehow', 'sometime', 'sometimes', 'system', 'ten', 'themselves', 'thence', 'thereafter', 'thereby', 'therein', 'thereupon', 'thickv', 'thin', 'third', 'throughout', 'thru', 'top', 'towards', 'twelve', 'twenty', 'un', 'via', 'whatever', 'whence', 'whenever', 'whereafter', 'whereas', 'whereby', 'wherein', 'whereupon', 'wherever', 'whither', 'whoever', 'whom', 'yourself', 'yourselves']
 				
 				searchquestion = str(form.cleaned_data['question']).split(" ")
@@ -152,16 +155,22 @@ def checkquestionexists(request):
 					check = ''.join(e for e in i if e.isalnum())
 					questiontagswithoutspecialchars.append(check)
 
-				print questiontagswithoutspecialchars
+				print questiontagswithoutspecialchars				
 
+				suggestion = "Select appropriate tags!"
+				context = {
+					'form':formprint,
+					'suggestion':suggestion,
 
-
+				}
 				
+				return render(request,'forum/search.html',context)				
 
 			else:
-				print "not valid"				
+				alert = "alert('Something went wrong!');"
 
 			context = {
+				'alert':alert,
 				'form':form
 			}
 
@@ -195,12 +204,13 @@ def askquestion(request):
 					return render(request, 'forum/askquestion.html',context)
 				else:																			
 					questiontitle = form.cleaned_data['questiontitle']
+					tags = form.cleaned_data['tags']
 					questioncontent = form.cleaned_data['questioncontent']
 					isonetoone = form.cleaned_data['isonetoone']																					
-					askedby = user.objects.get(username=loggeduser)
+					askedby = user.objects.get(username=loggeduser)					
 					if isonetoone:
-						askedto = form.cleaned_data['askedto']
-						questioninst = question(questiontitle=questiontitle,questioncontent=questioncontent,isonetoone=isonetoone,askedto=askedto,askedby=askedby)
+						askedto = form.cleaned_data['askedto']						
+						questioninst = question(questiontitle=questiontitle,questioncontent=questioncontent,isonetoone=isonetoone,askedto=askedto,askedby=askedby,tag=tags)
 						sendmailidtoteacher = askedto.email
 						mailsubjecttoteacher = "A question was asked to you!"
 						mailbodytoteacher = "Hello "+askedto.name+"!\nA question was asked to you by "+askedby.name+"!"
@@ -211,7 +221,7 @@ def askquestion(request):
 							[sendmailidtoteacher],
 							fail_silently=False)
 					else:
-						questioninst = question(questiontitle=questiontitle,questioncontent=questioncontent,isonetoone=isonetoone,askedby=askedby)
+						questioninst = question(questiontitle=questiontitle,questioncontent=questioncontent,isonetoone=isonetoone,askedby=askedby,tag=tags)
 					questioninst.save()										
 					#here askedby has model instance of question asker
 					sendmailid = askedby.email
