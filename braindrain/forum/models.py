@@ -1,6 +1,10 @@
 from django.db import models
 
 
+class tempusers(models.Model):
+	email = models.EmailField(max_length=200)
+	hashlink = models.CharField(max_length=200)
+
 class user(models.Model):
 	uid = models.IntegerField(primary_key=True)
 	name = models.CharField(max_length=200)

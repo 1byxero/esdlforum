@@ -26,7 +26,8 @@
 	
 		<br>
 
-	<div>			
+	<div>
+			{% if questionsyouasked %}
 			<h4>Questions you've asked are</h4>
 			<table>
 			
@@ -50,7 +51,7 @@
 				{% endfor %}
 
 			</table>
-
+			{% endif %}
 		</div>
 
 		<br>

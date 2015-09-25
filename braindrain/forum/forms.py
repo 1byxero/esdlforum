@@ -27,4 +27,10 @@ class answerquestionForm(forms.Form):
 class searchquestionForm(forms.Form):
 	question = forms.CharField(label='Question',required = True,widget=forms.Textarea)
 
+class tempuserForm(forms.ModelForm):
+	class Meta:
+		model = tempusers
+		fields = ['email']
+		
+
 

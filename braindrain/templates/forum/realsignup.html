@@ -48,7 +48,8 @@
 			<div class="col-md-2 pull-left">
 				
 				<form class="form-signin" action="." method="post">{% csrf_token %}			    					
-				    {{ form }}		    				    				    
+				    {{ form }}
+				    <input type="hidden" name="hash" value="{{hash}}">	    				    				    
 				    <div class="pull-right">
 				    	<input class="btn btn-lg btn-primary btn-block" type="submit" value="Submit" />				    
 				    </div>

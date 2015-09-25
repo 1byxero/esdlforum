@@ -6,6 +6,7 @@ from django.http import HttpResponse,HttpResponseRedirect
 from django.shortcuts import redirect
 from django.core.exceptions import ObjectDoesNotExist
 from django.views.decorators.csrf import csrf_exempt
+from datetime import datetime
 from .forms import *
 from .models import * 
 import hashlib
@@ -46,23 +47,147 @@ def index(request):
 def signup(request):
 	if "user" in request.session:
 		return redirect(profile)
+	
+	# else:
+	# 	if request.method == 'POST':
+	# 		form = userForm(request.POST)			
+	# 		if form.is_valid():				
+	# 				password = form.cleaned_data['password']
+	# 				if len(password)<10:					
+	# 					alert = 'alert("Please enter password with more than 10 characters");'
+	# 					return render(request, 'forum/signuplogin.html',{'form':form,'alert':alert,'title':"signup"})				
+	# 				else:
+	# 					a = form.save(commit=False)
+	# 					a.password = hashlib.md5(a.password).hexdigest()
+	# 					a.save()
+	# 					return HttpResponse('You have been success fully registered<br>click <a href=/login>here</a> to login')
+				
+	# 	else:
+	# 		form = userForm()
+	# 	return render(request, 'forum/signuplogin.html',{'form':form,'title':"signup"})
+	
+
 	else:
 		if request.method == 'POST':
-			form = userForm(request.POST)			
-			if form.is_valid():				
+			form = tempuserForm(request.POST)
+
+			if form.is_valid():
+				email = form.cleaned_data['email']
+
+				hashingtext = email+str(datetime.now()) #got hashtext
+				hashingtext = hashlib.md5(hashingtext).hexdigest()
+
+				tempuserinst = tempusers(email=email,hashlink=hashingtext)
+				tempuserinst.save()
+
+				mailsubject = "Signup Process"
+				linkforsignup="127.0.0.1:8000/signup?hash="+hashingtext
+				mailbody = "Hello!\nPlease click on following link to proceed further for signup!\n"+linkforsignup
+				sendmailid = email
+
+				send_mail(
+					mailsubject,
+					mailbody,
+					settings.EMAIL_HOST_USER,
+					[sendmailid],
+					fail_silently=False)
+
+				return HttpResponse("Please check your mail for further process!")
+
+			else:
+				alert = "Oops Something Went wrong"
+				context = {
+				'alert':alert,
+				'form':form,
+				'title':"signup",
+			}
+			return render(request, 'forum/signuplogin.html',context)
+
+			
+
+		elif 'hash' in request.GET:
+			hashtext = request.GET.get('hash')
+
+			try:
+				checkrequest = tempusers.objects.get(hashlink=hashtext)
+				if checkrequest.hashlink == hashtext:				
+					return HttpResponse("Click <a href=/signupinfo?hash="+hashtext+">here</a> to signup!")
+
+				else:
+					return HttpResponse("Something went Wrong!")
+			except ObjectDoesNotExist:
+				return HttpResponse("Trying to be smart?")
+
+
+			#add normal signup here
+
+		else:
+			form = tempuserForm()
+			suggestion = "Enter email id, we will send you signup link!"
+
+			context = {
+				'suggestion':suggestion,
+				'form':form,
+				'title':"signup",
+			}
+			return render(request, 'forum/signuplogin.html',context)
+
+def signupinfo(request):
+	if 'user' in request.session:
+		return redirect(profile)
+	else:
+		if request.method == "POST":
+			if 'hash' in request.POST:
+				form = userForm(request.POST)
+
+				if form.is_valid():
+					email = form.cleaned_data['password']
 					password = form.cleaned_data['password']
 					if len(password)<10:					
 						alert = 'alert("Please enter password with more than 10 characters");'
 						return render(request, 'forum/signuplogin.html',{'form':form,'alert':alert,'title':"signup"})				
 					else:
 						a = form.save(commit=False)
+						if "@pict.edu" in email:
+							a.isteacher = True
 						a.password = hashlib.md5(a.password).hexdigest()
 						a.save()
 						return HttpResponse('You have been success fully registered<br>click <a href=/login>here</a> to login')
-				
+
+				else:
+					form = userForm(request.POST)					
+					context = {						
+					'form':form,
+					'title':"signup",
+					}
+					return render(request, 'forum/realsignup.html',context)
+
+
+			else:
+				return HttpResponse("Trying to be smart?<br>are yeh?")
+
+
 		else:
-			form = userForm()
-		return render(request, 'forum/signuplogin.html',{'form':form,'title':"signup"})	
+			hashtext = request.GET.get('hash')
+			try:
+				checkrequest = tempusers.objects.get(hashlink=hashtext)
+				if checkrequest.hashlink == hashtext:
+					form = userForm()
+					form.fields['email'].initial=checkrequest.email
+					context = {
+					'hash':hashtext,				
+					'form':form,
+					'title':"signup",
+					}
+					return render(request, 'forum/realsignup.html',context)
+				else:
+					return HttpResponse("Trying to be smart?<br>are yeh?")
+					
+			except ObjectDoesNotExist:
+				return HttpResponse("Trying to be smart?<br>are yeh?")
+	
+
+
 
 
 def login(request):
@@ -111,9 +236,13 @@ def profile(request):
 		uid = userinstance.uid		 
 		isteacher = userinstance.isteacher
 
-		questionaskedlist = question.objects.filter(askedby=userinstance)		
+		questionaskedlist = question.objects.filter(askedby=userinstance)
+		questionsyouasked = False		
+		if questionaskedlist.count()>0:
+			questionsyouasked = True
 
 		context = {
+			'questionsyouasked':questionsyouasked,
 			'user':username,
 			'uid':uid,			
 			'questionlist':questionaskedlist,			
