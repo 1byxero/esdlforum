@@ -47,25 +47,6 @@ def index(request):
 def signup(request):
 	if "user" in request.session:
 		return redirect(profile)
-	
-	# else:
-	# 	if request.method == 'POST':
-	# 		form = userForm(request.POST)			
-	# 		if form.is_valid():				
-	# 				password = form.cleaned_data['password']
-	# 				if len(password)<10:					
-	# 					alert = 'alert("Please enter password with more than 10 characters");'
-	# 					return render(request, 'forum/signuplogin.html',{'form':form,'alert':alert,'title':"signup"})				
-	# 				else:
-	# 					a = form.save(commit=False)
-	# 					a.password = hashlib.md5(a.password).hexdigest()
-	# 					a.save()
-	# 					return HttpResponse('You have been success fully registered<br>click <a href=/login>here</a> to login')
-				
-	# 	else:
-	# 		form = userForm()
-	# 	return render(request, 'forum/signuplogin.html',{'form':form,'title':"signup"})
-	
 
 	else:
 		if request.method == 'POST':
@@ -80,8 +61,11 @@ def signup(request):
 				tempuserinst = tempusers(email=email,hashlink=hashingtext)
 				tempuserinst.save()
 
-				mailsubject = "Signup Process"
-				linkforsignup="127.0.0.1:8000/signup?hash="+hashingtext
+				#print request.current_path
+				currentlink = request.build_absolute_uri()
+
+				mailsubject = "Signup Process"				
+				linkforsignup=currentlink+"?hash="+hashingtext
 				mailbody = "Hello!\nPlease click on following link to proceed further for signup!\n"+linkforsignup
 				sendmailid = email
 
