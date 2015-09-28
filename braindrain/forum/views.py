@@ -140,14 +140,14 @@ def signupinfo(request):
 				form = userForm(request.POST)
 
 				if form.is_valid():
-					email = form.cleaned_data['password']
+					email = form.cleaned_data['email']
 					password = form.cleaned_data['password']
 					if len(password)<10:					
 						alert = 'alert("Please enter password with more than 10 characters");'
 						return render(request, 'forum/signuplogin.html',{'form':form,'alert':alert,'title':"signup"})				
 					else:
-						a = form.save(commit=False)
-						if "@pict.edu" in email:
+						a = form.save(commit=False)						
+						if "@pict.edu" in email:							
 							a.isteacher = True
 						a.password = hashlib.md5(a.password).hexdigest()
 						a.save()
