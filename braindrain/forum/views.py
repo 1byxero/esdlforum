@@ -281,12 +281,12 @@ def search(request):
 
 				for i in questiontags:
 					check = ''.join(e for e in i if e.isalnum())
-					questiontagswithoutspecialchars.append(check)
+					questiontagswithoutspecialchars.append(check.lower())
+
 
 				searchresult = []
 
-				for i in questiontagswithoutspecialchars:
-					print i
+				for i in questiontagswithoutspecialchars:					
 					results = question.objects.filter(tag=i)				
 
 				if results.count()>0:
