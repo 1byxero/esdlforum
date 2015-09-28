@@ -18,28 +18,43 @@ import hashlib
 loginalert = "please login<br>click <a href=/login>here</a> to login"
 
 def index(request):
-	questionlist = question.objects.all()
-	showquestions=True
+	if 'tags' in request.POST:
+		tag = request.POST.get('tags')
+		questionlist = question.objects.filter(tag=tag)
+		showquestions=True
 
-	if len(questionlist)==0:
-		showquestions=False
+		if len(questionlist)==0:
+			showquestions=False
 
-	if 'user' in request.session:		
+		if 'user' in request.session:		
 
-		context = {
-			'showquestions':showquestions,
-			'user':request.session['user'],
-			'questionlist':questionlist,
-		}
+			context = {
+				'showquestions':showquestions,
+				'user':request.session['user'],
+				'questionlist':questionlist,
+			}
 
-		return render(request, 'forum/index.html',context)
+			return render(request, 'forum/index.html',context)
+		else:
+			context = {
+				'showquestions':showquestions,		
+				'questionlist':questionlist,
+			}
+
+			return render(request, 'forum/index.html',context)
+
 	else:
-		context = {
-			'showquestions':showquestions,		
-			'questionlist':questionlist,
-		}
+			form = selecttagForm()
+			context = {
+				'showtagform':True,
+				'showquestions':False,	
+				'form':form,
+			}
 
-		return render(request, 'forum/index.html',context)
+			return render(request, 'forum/index.html',context)
+
+
+	
 
 
 
