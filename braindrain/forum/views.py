@@ -45,6 +45,7 @@ def index(request):
 	else:
 			form = selecttagForm()
 			context = {
+				'user':request.session['user'],
 				'showtagform':True,
 				'showquestions':False,
 				'form':form,				
@@ -235,7 +236,7 @@ def login(request):
 					userinstance = user.objects.get(username=formusername)
 					if(userinstance.password==hashlib.md5(formpassword).hexdigest()):
 						request.session['user'] = formusername
-						return redirect(profile)
+						return redirect(index)
 					else:
 						alert = 'alert("Incorrect password");'
 						return render(request, 'forum/signuplogin.html',{'form':form,'alert':alert,'title':"login"})
@@ -378,7 +379,7 @@ def search(request):
 				'form':form,
 			}
 
-			return render(request,'forum/signuplogin.html',context)
+			return render(request,'forum/searchpage.html',context)
 
 	else:
 		return HttpResponse(loginalert)
@@ -637,12 +638,14 @@ def addtag(request):
 			if form.is_valid():
 				form.save()
 				context = {
+						"user":request.session['user'],
 						"suggestion":"Tag added",
 						}					
 				return render(request,"forum/response.html",context)				
 
 			else:
 				context = {				
+				"user":request.session['user'],
 				"suggestion":"tag added",				
 				'form':form,
 				}
@@ -654,6 +657,7 @@ def addtag(request):
 
 			form = addtagForm()
 			context = {
+				"user":request.session['user'],
 				"availabletags":showtags,
 				"form":form,
 			}

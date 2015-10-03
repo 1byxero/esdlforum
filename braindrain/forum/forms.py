@@ -15,7 +15,7 @@ class loginform(forms.Form):
 
 class questionForm(forms.Form):
 	questiontitle = forms.CharField(label='Question Title', max_length=100,required = True)
-	questioncontent = forms.CharField(label='Question',required = True,widget=forms.Textarea)
+	questioncontent = forms.CharField(label='Question',required = True,widget=forms.Textarea(attrs={'rows':4, 'cols':15}))
 	isonetoone = forms.BooleanField(label= 'Ask to teacher',required=False)	
 	askedto = forms.ModelChoiceField(label='Question asked to',queryset=user.objects.filter(isteacher=True),required=False)
 	tags = forms.ModelChoiceField(label='Select Tag',queryset=tags.objects.all(),required=True)
