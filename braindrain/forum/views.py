@@ -333,7 +333,8 @@ def search(request):
 						for i in results:
 							searchresult.append(i)
 						for i in titleresult:
-							searchresult.append(i)
+							if i not in searchresult:
+								searchresult.append(i)
 
 
 				
