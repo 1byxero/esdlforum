@@ -1,12 +1,10 @@
-{% load staticfiles%}
-
+{% load staticfiles %}
 <!DOCTYPE html>
 <html>
 	<head>
 		<title>{{title}}</title>
-		<style type="text/css">
-
-		body {
+	<style>
+			body {
   padding-top: 70px;
   padding-bottom: 30px;
 }
@@ -35,29 +33,36 @@
    
 
 
-
-
-	</head>	
-	
 	<body>
+	{% include "forum/navbar.html"%}
+
+
+	<div class="container">		
 		<div>
-			<h2>{{suggestion}}<h2>
+			<h2>{{suggestion}}</h2>
+			<div class="col-md-2 pull-left">
+				
+				<form class="form-signin" action="." method="post">{% csrf_token %}			    					
+				    {{ form }}				    
+				    <div class="pull-right">
+				    	<input class="btn btn-lg btn-primary btn-block" type="submit" value="Submit" />				    
+				    </div>
+				</form>			
 
+			</div>
 		</div>
 
-		<div class="col-md-2">
+	</div>
+		
+		<script>
 
-			<form action = "." method="post" >{% csrf_token %}
-			{{ form }}					
-			<input type="submit" value="search question" name = "search"/>		
-			</form>		
-		</div>
-	<script type="text/javascript">
-	{{alert|safe}}
-	</script>
+		    {{ alert|safe }}
+
+		</script>
 	<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
 	<script src="{% static 'forum/js/bootstrap.min.js' %}"></script>    
-	</body>
 
+
+	</body>
 
 </html>

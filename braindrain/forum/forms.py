@@ -35,6 +35,11 @@ class tempuserForm(forms.ModelForm):
 class selecttagForm(forms.Form):
 	tags = forms.ModelChoiceField(label='Select Tag',queryset=tags.objects.all(),required=True)
 
+class addtagForm(forms.ModelForm):
+	class Meta:
+		model = tags
+		fields = ['name']
+
 		
 		
 

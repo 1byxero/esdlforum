@@ -5,6 +5,9 @@ class tempusers(models.Model):
 	email = models.EmailField(max_length=200)
 	hashlink = models.CharField(max_length=200)
 
+	def __unicode__(self):
+		return self.email
+
 class user(models.Model):
 	uid = models.IntegerField(primary_key=True)
 	name = models.CharField(max_length=200)

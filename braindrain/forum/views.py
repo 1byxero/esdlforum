@@ -1,14 +1,13 @@
-from django import forms
 from django.core.mail import send_mail
 from django.conf import settings
 from django.shortcuts import render
-from django.http import HttpResponse,HttpResponseRedirect
+from django.http import HttpResponse
 from django.shortcuts import redirect
 from django.core.exceptions import ObjectDoesNotExist
 from django.views.decorators.csrf import csrf_exempt
 from datetime import datetime
 from .forms import *
-from .models import * 
+from .models import *
 import hashlib
 
 
@@ -26,7 +25,7 @@ def index(request):
 		if len(questionlist)==0:
 			showquestions=False
 
-		if 'user' in request.session:		
+		if 'user' in request.session:
 
 			context = {
 				'showquestions':showquestions,
@@ -37,7 +36,7 @@ def index(request):
 			return render(request, 'forum/index.html',context)
 		else:
 			context = {
-				'showquestions':showquestions,		
+				'showquestions':showquestions,
 				'questionlist':questionlist,
 			}
 
@@ -47,14 +46,14 @@ def index(request):
 			form = selecttagForm()
 			context = {
 				'showtagform':True,
-				'showquestions':False,	
+				'showquestions':False,
 				'form':form,
 			}
 
 			return render(request, 'forum/index.html',context)
 
 
-	
+
 
 
 
@@ -79,7 +78,7 @@ def signup(request):
 				#print request.current_path
 				currentlink = request.build_absolute_uri()
 
-				mailsubject = "Signup Process"				
+				mailsubject = "Signup Process"
 				linkforsignup=currentlink+"?hash="+hashingtext
 				mailbody = "Hello!\nPlease click on following link to proceed further for signup!\n"+linkforsignup
 				sendmailid = email
@@ -102,14 +101,14 @@ def signup(request):
 			}
 			return render(request, 'forum/signuplogin.html',context)
 
-			
+
 
 		elif 'hash' in request.GET:
 			hashtext = request.GET.get('hash')
 
 			try:
 				checkrequest = tempusers.objects.get(hashlink=hashtext)
-				if checkrequest.hashlink == hashtext:				
+				if checkrequest.hashlink == hashtext:
 					return HttpResponse("Click <a href=/signupinfo?hash="+hashtext+">here</a> to signup!")
 
 				else:
@@ -142,20 +141,22 @@ def signupinfo(request):
 				if form.is_valid():
 					email = form.cleaned_data['email']
 					password = form.cleaned_data['password']
-					if len(password)<10:					
+					if len(password)<10:
 						alert = 'alert("Please enter password with more than 10 characters");'
-						return render(request, 'forum/signuplogin.html',{'form':form,'alert':alert,'title':"signup"})				
+						return render(request, 'forum/signuplogin.html',{'form':form,'alert':alert,'title':"signup"})
 					else:
-						a = form.save(commit=False)						
-						if "@pict.edu" in email:							
+						a = form.save(commit=False)
+						if "@pict.edu" in email:
 							a.isteacher = True
 						a.password = hashlib.md5(a.password).hexdigest()
 						a.save()
+						tempusers.objects.filter(email=email).delete()
+
 						return HttpResponse('You have been success fully registered<br>click <a href=/login>here</a> to login')
 
 				else:
-					form = userForm(request.POST)					
-					context = {						
+					form = userForm(request.POST)
+					context = {
 					'form':form,
 					'title':"signup",
 					}
@@ -174,30 +175,30 @@ def signupinfo(request):
 					form = userForm()
 					form.fields['email'].initial=checkrequest.email
 					context = {
-					'hash':hashtext,				
+					'hash':hashtext,
 					'form':form,
 					'title':"signup",
 					}
 					return render(request, 'forum/realsignup.html',context)
 				else:
 					return HttpResponse("Trying to be smart?<br>are yeh?")
-					
+
 			except ObjectDoesNotExist:
 				return HttpResponse("Trying to be smart?<br>are yeh?")
-	
+
 
 
 
 
 def login(request):
-	if "user" in request.session:			
+	if "user" in request.session:
 			return redirect(profile)
 	else:
 		if request.method == 'POST':
-			
+
 			form = loginform(request.POST)
 
-			if form.is_valid():						
+			if form.is_valid():
 				formusername = form.cleaned_data['username']
 				formpassword = form.cleaned_data['password']
 				try:
@@ -216,53 +217,57 @@ def login(request):
 				alert = 'alert("Please enter password");' #,%formusername
 				return render(request, 'forum/signuplogin.html',{'form':form,'alert':alert,'title':"login"})
 
-		else:		
+		else:
 			form = loginform()
 			return render(request, 'forum/signuplogin.html',{'form':form,'title':"login"})
 
 @csrf_exempt
 def profile(request):
-	if "question" in request.POST:
-		return redirect(askquestion)
+	if "show" in request.POST:
+		return redirect(index)
 
-	if "logout" in request.POST:		
+	if "question" in request.POST:
+		return redirect(search)
+
+	if "logout" in request.POST:
 		del request.session['user']
 		return HttpResponse("successfully logged out")
-	
+
 	if 'user' in request.session:
 		username = request.session['user']
-		userinstance = user.objects.get(username=username)		
-		uid = userinstance.uid		 
+		userinstance = user.objects.get(username=username)
+		uid = userinstance.uid
 		isteacher = userinstance.isteacher
 
 		questionaskedlist = question.objects.filter(askedby=userinstance)
-		questionsyouasked = False		
+		questionsyouasked = False
 		if questionaskedlist.count()>0:
 			questionsyouasked = True
 
 		context = {
 			'questionsyouasked':questionsyouasked,
 			'user':username,
-			'uid':uid,			
-			'questionlist':questionaskedlist,			
+			'uid':uid,
+			'questionlist':questionaskedlist,
 		}
 
 		if isteacher:
 			questionaskedtoyoulist = question.objects.filter(askedto=userinstance)
-			noofquestionsasked = questionaskedtoyoulist.count()				
+			noofquestionsasked = questionaskedtoyoulist.count()
 			if noofquestionsasked>0:
 				showquestionsaskedtoyou = True
 			else:
 				showquestionsaskedtoyou = False
-			context.update({"questionaskedtoyoulist":questionaskedtoyoulist,'showquestionsaskedtoyou':showquestionsaskedtoyou,})		
+			context.update({"questionaskedtoyoulist":questionaskedtoyoulist,'showquestionsaskedtoyou':showquestionsaskedtoyou,})
 		return render(request, 'forum/profilepage.html',context)
 	else:
 		return HttpResponse(loginalert)
 @csrf_exempt
-def search(request):	
+def search(request):
 	if 'user' in request.session:
 		user = request.session['user']
 		if request.method == 'POST':
+			showquestions = False
 			form = searchquestionForm(request.POST)
 
 			if form.is_valid():
@@ -272,10 +277,10 @@ def search(request):
 				searchquestion = str(form.cleaned_data['question']).split(" ")
 
 				questiontags=[]
-				
+
 				for i in searchquestion:
 					if i.lower() not in stopwords:
-						questiontags.append(i)				
+						questiontags.append(i)
 
 				questiontagswithoutspecialchars = []
 
@@ -285,27 +290,37 @@ def search(request):
 
 
 				searchresult = []
+				finalresults = []
 
-				for i in questiontagswithoutspecialchars:					
-					results = question.objects.filter(tag=i)				
+				for i in questiontagswithoutspecialchars:
+					results = question.objects.filter(tag=i)
+					titleresult = question.objects.filter(questiontitle=i)
+					if results.count()>0 or titleresult.count()>0:
+						showquestions = True
+						for i in results:
+							searchresult.append(i)
+						for i in titleresult:
+							searchresult.append(i)
 
-				if results.count()>0:
-					for i in results:
-						searchresult.append(i)
-					showquestions = True
+
+				
+
+				if showquestions:
+					for i in searchresult:
+						finalresults.append(i)
+
+					
 
 				context = {
-						'user':user,						
+						'user':user,
 					}
 
-				if len(searchresult)>0:					
+				if len(searchresult)>0:
 					context = {
 						'user':user,
 						'showquestions':showquestions,
-						'questionlist':searchresult,
+						'questionlist':finalresults,
 					}
-
-				print searchresult
 
 				return render(request,"forum/searchresult.html",context)
 
@@ -319,16 +334,16 @@ def search(request):
 					'alert':"Something Went Wrong!",
 				}
 
-				return render(request,"forum/search.html",context)
+				return render(request,"forum/signuplogin.html",context)
 
 		else:
 			form = searchquestionForm()
 
 			context = {
-				'form':form,				
+				'form':form,
 			}
 
-			return render(request,'forum/search.html',context)
+			return render(request,'forum/signuplogin.html',context)
 
 	else:
 		return HttpResponse(loginalert)
@@ -336,11 +351,11 @@ def search(request):
 @csrf_exempt
 def askquestion(request):
 	if 'user' in request.session:
-		loggeduser = request.session['user']		
-		if 'ask' in request.POST:			
+		loggeduser = request.session['user']
+		if 'ask' in request.POST:
 			form  = questionForm(request.POST)
 
-			if form.is_valid():								
+			if form.is_valid():
 				if form.cleaned_data['isonetoone'] and form.cleaned_data['askedto']==None:
 					alert = "alert('Select teacher to whom you want to ask the question!');"
 					context = {
@@ -349,14 +364,14 @@ def askquestion(request):
 						'alert':alert,
 						}
 					return render(request, 'forum/askquestion.html',context)
-				else:																			
+				else:
 					questiontitle = form.cleaned_data['questiontitle']
 					tags = form.cleaned_data['tags']
 					questioncontent = form.cleaned_data['questioncontent']
-					isonetoone = form.cleaned_data['isonetoone']																					
-					askedby = user.objects.get(username=loggeduser)					
+					isonetoone = form.cleaned_data['isonetoone']
+					askedby = user.objects.get(username=loggeduser)
 					if isonetoone:
-						askedto = form.cleaned_data['askedto']						
+						askedto = form.cleaned_data['askedto']
 						questioninst = question(questiontitle=questiontitle,questioncontent=questioncontent,isonetoone=isonetoone,askedto=askedto,askedby=askedby,tag=tags)
 						sendmailidtoteacher = askedto.email
 						mailsubjecttoteacher = "A question was asked to you!"
@@ -369,11 +384,11 @@ def askquestion(request):
 							fail_silently=False)
 					else:
 						questioninst = question(questiontitle=questiontitle,questioncontent=questioncontent,isonetoone=isonetoone,askedby=askedby,tag=tags)
-					questioninst.save()										
+					questioninst.save()
 					#here askedby has model instance of question asker
 					sendmailid = askedby.email
 					mailsubject = "Notifications for Question"
-					mailbody = "Hello "+askedby.name+"!\nWe will notify you when the question you've asked receives an answer!"					
+					mailbody = "Hello "+askedby.name+"!\nWe will notify you when the question you've asked receives an answer!"
 					send_mail(
 						mailsubject,
 						mailbody,
@@ -385,14 +400,14 @@ def askquestion(request):
 			else:
 				context = {
 				'form':form,
-				'user':loggeduser,			
+				'user':loggeduser,
 			}
 			return render(request, 'forum/askquestion.html',context)
 
 
 		else:
 			form  = questionForm()
-			
+
 			context = {
 				'form':form,
 				'user':loggeduser,
@@ -405,20 +420,20 @@ def askquestion(request):
 		return HttpResponse(loginalert)
 
 def answerquestion(request):
-	if 'user' in request.session:		
-		loggeduser = request.session['user']	
+	if 'user' in request.session:
+		loggeduser = request.session['user']
 
 		if request.method == 'POST':
 			#executed if answer form is written and posted
 
-			if 'qid' in request.POST:				
-				qid = request.POST.get('qid')				
+			if 'qid' in request.POST:
+				qid = request.POST.get('qid')
 				try:
-					form = answerquestionForm(request.POST)								
+					form = answerquestionForm(request.POST)
 					questioninst = question.objects.get(qid=qid)
 					#execute this block is qid exists
 					questiontitle = questioninst.questiontitle
-					questioncontent = questioninst.questioncontent					
+					questioncontent = questioninst.questioncontent
 					askedby = questioninst.askedby
 					answered = questioninst.answered
 					answerlist = []
@@ -435,27 +450,27 @@ def answerquestion(request):
 							answeredbyinmodel = i.useranswered
 							answerlistobject = 	{'answer':answercontentinmodel,'by':answeredbyinmodel,}
 					 		answerlist.append(answerlistobject)
-		
+
 					if form.is_valid():
-						#execute this if form is valid							
+						#execute this if form is valid
 						answercontent = form.cleaned_data['answer']
-						if(len(answercontent)<100):						
+						if(len(answercontent)<100):
 							alert = 'alert("Your answer is too short to submit");'
-							suggestion = "Elaborate your answer. Share all you've got!"												
+							suggestion = "Elaborate your answer. Share all you've got!"
 							context = {
 								'qid':qid,
 								'form':form,
 								'user':loggeduser,
 								'cananswer':cananswer,
-								'alert':alert,															
+								'alert':alert,
 								'askedby':askedby,
 								'suggestion':suggestion,
 								'questiontitle':questiontitle,
-								'questioncontent':questioncontent,						
+								'questioncontent':questioncontent,
 								'answered':answered,
 								'answercontent':answercontent,
 								'answerlist':answerlist,
-							}							
+							}
 							return render(request,'forum/answerquestion.html',context)
 						else:
 							userinst = user.objects.get(username=loggeduser)
@@ -464,7 +479,7 @@ def answerquestion(request):
 							answermodel.save()
 							#saved answer
 							questioninst.answered = True
-							questioninst.save()							
+							questioninst.save()
 
 							userwhoaskedquestioninst=user.objects.get(username=askedby)
 							sendmailid = userwhoaskedquestioninst.email
@@ -479,7 +494,7 @@ def answerquestion(request):
 								fail_silently=False)
 
 							return HttpResponse("Your answer will be submited")
-						
+
 					else:
 						#execute this block if form is not valid
 
@@ -494,16 +509,16 @@ def answerquestion(request):
 							'questioncontent':questioncontent,
 							'answered':answered,
 							'answercontent':answercontent,
-							'answerlist':answerlist,				
+							'answerlist':answerlist,
 						}
-						return render(request,'forum/answerquestion.html',context)					
+						return render(request,'forum/answerquestion.html',context)
 				except ObjectDoesNotExist:
-					#post request forging handled by this block										
-					return HttpResponse("Something went Wrong!<br>Click <a href='/'>here</a> to check the questions")					
+					#post request forging handled by this block
+					return HttpResponse("Something went Wrong!<br>Click <a href='/'>here</a> to check the questions")
 
 			else:
-				#post request forging handled by this block								
-				return HttpResponse("Something went Wrong!<br>Click <a href='/'>here</a> to check the questions")	
+				#post request forging handled by this block
+				return HttpResponse("Something went Wrong!<br>Click <a href='/'>here</a> to check the questions")
 
 		elif 'qid' in request.GET:
 			#this block is executed if when the question link on index page is executed
@@ -514,34 +529,34 @@ def answerquestion(request):
 				questioninst = question.objects.get(qid=qid)
 				questiontitle = questioninst.questiontitle
 				questioncontent = questioninst.questioncontent
-				askedby = questioninst.askedby				
+				askedby = questioninst.askedby
 				answered = questioninst.answered
-				askedto = questioninst.askedto	
+				askedto = questioninst.askedto
 
 
 				answerlist = []
 				answercontent = ""
 				cananswer = True
 
-				if answered:					
+				if answered:
 					answerinst = answer.objects.filter(question=qid)
-					for i in answerinst:						
+					for i in answerinst:
 						answercontentinmodel = i.answercontent
 						answeredbyinmodel = i.useranswered
 						answerlistobject = 	{'answer':answercontentinmodel,'by':answeredbyinmodel,}
 				 		answerlist.append(answerlistobject)
 
-				form = answerquestionForm()						
+				form = answerquestionForm()
 				if askedto!=None and askedto!=user.objects.get(username=loggeduser):
 					cananswer = False
 
 
-				context = {							
+				context = {
 							'qid':qid,
 							'form':form,
 							'cananswer':cananswer,
-							'askedby':askedby,							
-							'user':loggeduser,							
+							'askedby':askedby,
+							'user':loggeduser,
 							'questiontitle':questiontitle,
 							'questioncontent':questioncontent,
 							'answered':answered,
@@ -553,10 +568,39 @@ def answerquestion(request):
 			else:
 				return HttpResponse("no such question exists!<br>Click <a href='/'>here</a> to check the questions")
 		else:
-			return HttpResponse("Select the question first!<br>Click <a href='/'>here</a> to check the questions")	
+			return HttpResponse("Select the question first!<br>Click <a href='/'>here</a> to check the questions")
 	else:
 		return HttpResponse(loginalert)
 
 
 
+def addtag(request):
+	if 'user' in request.session:
+		if request.method =="POST":			
+			form = addtagForm(request.POST)	
 
+			if form.is_valid():
+				form.save()
+				return HttpResponse("Tag added")
+
+			else:
+				context = {				
+				"suggestion":"tag added",				
+				'form':form,
+				}
+
+			return render(request,"forum/addtag.html",context)
+
+		else:
+			showtags=tags.objects.all()
+
+			form = addtagForm()
+			context = {
+				"availabletags":showtags,
+				"form":form,
+			}
+
+			return render(request,"forum/addtag.html",context)	
+
+	else:
+		return HttpResponse(loginalert)

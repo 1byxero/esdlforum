@@ -13,11 +13,14 @@ class answerAdmin(admin.ModelAdmin):
 class tagsAdmin(admin.ModelAdmin):
 	pass
 
+class tempuserAdmin(admin.ModelAdmin):
+	pass
 
 admin.site.register(user,userAdmin)
 admin.site.register(question,questionAdmin)
 admin.site.register(answer,answerAdmin)
 admin.site.register(tags,tagsAdmin)
+admin.site.register(tempusers,tempuserAdmin)
 
 
 

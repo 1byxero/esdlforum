@@ -9,7 +9,8 @@ urlpatterns = [
     url(r'^profile/', views.profile, name='profile'),
     url(r'^search/', views.search, name='search'),
     url(r'^askquestion/', views.askquestion, name='askquestion'),
-    url(r'^answerquestion/',views.answerquestion,name='answerquestion')
+    url(r'^answerquestion/',views.answerquestion,name='answerquestion'),
+    url(r'^addtag/',views.addtag,name='addtag'),
 
 ]
 
