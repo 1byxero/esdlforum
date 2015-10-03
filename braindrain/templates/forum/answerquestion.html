@@ -1,35 +1,88 @@
-{% load staticfiles%}
+{% load staticfiles %}
 <!DOCTYPE html>
 <html>
 	<head>
 		<title>{{title}}</title>
 	</head>
-	
-	<body>	
-		{% include "forum/navbar.html"%}	
-		
-		<br>				
-		<h2>Title: {{questiontitle}}</h2>
-		<h3>Question: {{questioncontent}}</h3>	
-		<h4>Asked by: {{askedby}} </h4>
+	<style>
+	    body {
+	        padding-top:20px;
+	        padding-left:120px;
+	        padding-right:120px;
 
-		{% if answered %}		
-		{% for i in answerlist %}			
+	    }
+	    .pos {
+	        padding-right:20px;
+	        padding-left:20px;
+	    }
+
+	    .pos1 {
+	        padding-right:20px;
+            text-align:right;
+	    }
+	    .jumbotron
+	    {
+	        height:200px;
+
+	    }
+	    .ans
+	    {
+	        width=1000px;
+	    }
+
+	        .btn {
+    padding-left:150px;
+    width:200px;
+    height:45px;
+    background-color:rgb(16,16,16);
+    color:white;
+    border-color:rgb(16,16,16);
+
+}
+            .btn1
+            {
+                padding-left:400px;
+            }
+        .textsize{
+            height:100px;
+        }
+
+	</style>
+
+	<body>
+	    <link href="{% static 'forum/css/bootstrap.min.css'%} " rel="stylesheet">
+    <!-- Bootstrap theme -->
+    <link href="{% static 'forum/css/bootstrap-theme.min.css'%} " rel="stylesheet">
+
+	    {% include "forum/navbar.html"%}
+	    <div class="jumbotron">
+		<h2 class="pos">Title: {{questiontitle}}</h2>
+		<h2 class="pos">Question: {{questioncontent}}</h2>
+		<h4 class="pos1">Asked by: {{askedby}} </h4>
+        </div>
+		{% if answered %}
+		{% for i in answerlist %}
+
+		<h3>Answer by {{i.by}} :</h3>
 		<p> {{i.answer}} </p>
-		<h2>Answer by {{i.by}} </h2>		
-		{% endfor %}		
+		{% endfor %}
 		{% endif%}
 
 		{% if cananswer %}
 		<h2>Be the first one to answer!
 		</h2>
-
-		<form action = "." method="post" >{% csrf_token %}			
-			{{ form }}						
+        <div class="ans">
+		<form action = "." method="post"  >{% csrf_token %}
+			<div style="position:relative;left:30%;" >
+			{{form}}
+			</div>
 			<input id="id_url" name="url" type="hidden" value=" {{request.get_full_path}} " />
-			<input id="id_qid" name="qid" type="hidden" value="{{qid}}" />
-			<input type="submit" value = "Answer" name = "submit"/>
+			<input id="id_qid" name="qid" type="hidden" value="{{qid}}" /><br>
+			<div class="btn1">
+			<input type="submit" value = "Answer" class="btn" name = "submit"/>
+			</div>
 		</form>
+		</div>
 
 		{% else %}
 
