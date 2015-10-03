@@ -47,8 +47,7 @@ def index(request):
 			context = {
 				'showtagform':True,
 				'showquestions':False,
-				'form':form,
-				'user':request.session['user'],
+				'form':form,				
 			}
 
 			return render(request, 'forum/index.html',context)
@@ -661,4 +660,8 @@ def addtag(request):
 			return render(request,"forum/addtag.html",context)	
 
 	else:
+		context = {
+						"suggestion":loginalert,
+						}					
+		return render(request,"forum/response.html",context)
 		return HttpResponse(loginalert)
