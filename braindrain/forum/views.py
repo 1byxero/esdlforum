@@ -48,6 +48,7 @@ def index(request):
 				'showtagform':True,
 				'showquestions':False,
 				'form':form,
+				'user':request.session['user'],
 			}
 
 			return render(request, 'forum/index.html',context)
@@ -90,7 +91,12 @@ def signup(request):
 					[sendmailid],
 					fail_silently=False)
 
-				return HttpResponse("Please check your mail for further process!")
+				context = {
+						"suggestion":"Please check your mail for further process!",
+						}					
+				return render(request,"forum/response.html",context)
+
+				
 
 			else:
 				alert = "Oops Something Went wrong"
@@ -108,13 +114,24 @@ def signup(request):
 
 			try:
 				checkrequest = tempusers.objects.get(hashlink=hashtext)
-				if checkrequest.hashlink == hashtext:
-					return HttpResponse("Click <a href=/signupinfo?hash="+hashtext+">here</a> to signup!")
+				if checkrequest.hashlink == hashtext:					
+					context = {
+						"suggestion":"Click <a href=/signupinfo?hash="+hashtext+">here</a> to signup!",
+					}
+					return render(request,"forum/response.html",context)
 
 				else:
-					return HttpResponse("Something went Wrong!")
+					context = {
+						"suggestion":"Something went Wrong!",
+					}					
+					return render(request,"forum/response.html",context)
+
 			except ObjectDoesNotExist:
-				return HttpResponse("Trying to be smart?")
+				context = {
+						"suggestion":"Trying to be smart?",
+					}					
+				return render(request,"forum/response.html",context)
+				
 
 
 			#add normal signup here
@@ -151,8 +168,11 @@ def signupinfo(request):
 						a.password = hashlib.md5(a.password).hexdigest()
 						a.save()
 						tempusers.objects.filter(email=email).delete()
-
-						return HttpResponse('You have been success fully registered<br>click <a href=/login>here</a> to login')
+						context = {
+						"suggestion":'You have been success fully registered<br>click <a href=/login>here</a> to login',
+						}					
+						return render(request,"forum/response.html",context)
+						
 
 				else:
 					form = userForm(request.POST)
@@ -164,7 +184,11 @@ def signupinfo(request):
 
 
 			else:
-				return HttpResponse("Trying to be smart?<br>are yeh?")
+				context = {
+						"suggestion":"Trying to be smart?<br>are yeh?",
+						}					
+				return render(request,"forum/response.html",context)
+				
 
 
 		else:
@@ -181,10 +205,17 @@ def signupinfo(request):
 					}
 					return render(request, 'forum/realsignup.html',context)
 				else:
-					return HttpResponse("Trying to be smart?<br>are yeh?")
+					context = {
+						"suggestion":"Trying to be smart?<br>are yeh?",
+						}					
+					return render(request,"forum/response.html",context)
+					
 
 			except ObjectDoesNotExist:
-				return HttpResponse("Trying to be smart?<br>are yeh?")
+				context = {
+						"suggestion":"Trying to be smart?<br>are yeh?",
+						}					
+				return render(request,"forum/response.html",context)
 
 
 
@@ -231,7 +262,10 @@ def profile(request):
 
 	if "logout" in request.POST:
 		del request.session['user']
-		return HttpResponse("successfully logged out")
+		context = {
+						"suggestion":"successfully logged out",
+						}					
+		return render(request,"forum/response.html",context)	
 
 	if 'user' in request.session:
 		username = request.session['user']
@@ -329,7 +363,7 @@ def search(request):
 			else:
 
 				context = {
-
+					'user':request.session['user'],
 					'form':form,
 					'alert':"Something Went Wrong!",
 				}
@@ -340,6 +374,7 @@ def search(request):
 			form = searchquestionForm()
 
 			context = {
+				'user':request.session['user'],
 				'form':form,
 			}
 
@@ -395,7 +430,11 @@ def askquestion(request):
 						settings.EMAIL_HOST_USER,
 						[sendmailid],
 						fail_silently=False)
-					return HttpResponse("Question submitted")
+
+					context = {
+						"suggestion":"Question submitted",
+					}
+					return render(request,"forum/response.html",context)
 
 			else:
 				context = {
@@ -492,11 +531,12 @@ def answerquestion(request):
 								settings.EMAIL_HOST_USER,
 								[sendmailid],
 								fail_silently=False)
+							context = {
+										"suggestion":"Your answer will be submited",
+									}					
+							return render(request,"forum/response.html",context)							
 
-							return HttpResponse("Your answer will be submited")
-
-					else:
-						#execute this block if form is not valid
+					else:		
 
 
 						context = {
@@ -514,11 +554,19 @@ def answerquestion(request):
 						return render(request,'forum/answerquestion.html',context)
 				except ObjectDoesNotExist:
 					#post request forging handled by this block
-					return HttpResponse("Something went Wrong!<br>Click <a href='/'>here</a> to check the questions")
+
+					context = {
+						"suggestion":"Something went Wrong!<br>Click <a href='/'>here</a> to check the questions",
+						}					
+					return render(request,"forum/response.html",context)
+					
 
 			else:
 				#post request forging handled by this block
-				return HttpResponse("Something went Wrong!<br>Click <a href='/'>here</a> to check the questions")
+				context = {
+						"suggestion":"Something went Wrong!<br>Click <a href='/'>here</a> to check the questions",
+						}					
+				return render(request,"forum/response.html",context)
 
 		elif 'qid' in request.GET:
 			#this block is executed if when the question link on index page is executed
@@ -566,9 +614,16 @@ def answerquestion(request):
 
 				return render(request,'forum/answerquestion.html',context)
 			else:
-				return HttpResponse("no such question exists!<br>Click <a href='/'>here</a> to check the questions")
+				context = {
+						"suggestion":"no such question exists!<br>Click <a href='/'>here</a> to check the questions",
+						}					
+				return render(request,"forum/response.html",context)
+				
 		else:
-			return HttpResponse("Select the question first!<br>Click <a href='/'>here</a> to check the questions")
+			context = {
+						"suggestion":"no such question exists!<br>Click <a href='/'>here</a> to check the questions",
+						}					
+			return render(request,"forum/response.html",context)
 	else:
 		return HttpResponse(loginalert)
 
@@ -581,7 +636,10 @@ def addtag(request):
 
 			if form.is_valid():
 				form.save()
-				return HttpResponse("Tag added")
+				context = {
+						"suggestion":"Tag added",
+						}					
+				return render(request,"forum/response.html",context)				
 
 			else:
 				context = {				

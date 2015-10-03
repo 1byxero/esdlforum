@@ -1,11 +1,13 @@
+{% load staticfiles%}
 <!DOCTYPE html>
 <html>
 	<head>
 		<title>{{title}}</title>
 	</head>
 	
-	<body>		
-		<h6>hello {{user}} </h6>
+	<body>	
+		{% include "forum/navbar.html"%}	
+		
 		<br>				
 		<h2>Title: {{questiontitle}}</h2>
 		<h3>Question: {{questioncontent}}</h3>	
