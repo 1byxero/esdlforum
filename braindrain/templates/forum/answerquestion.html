@@ -68,9 +68,7 @@
 		{% endfor %}
 		{% endif%}
 
-		{% if cananswer %}
-		<h2>Be the first one to answer!
-		</h2>
+		{% if cananswer %}		
         <div class="ans">
 		<form action = "." method="post"  >{% csrf_token %}
 			<div style="position:relative;left:30%;" >

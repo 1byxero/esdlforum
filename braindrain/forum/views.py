@@ -38,14 +38,14 @@ def index(request):
 			context = {
 				'showquestions':showquestions,
 				'questionlist':questionlist,
+				'user':request.session['user'],
 			}
 
 			return render(request, 'forum/index.html',context)
 
 	else:
 			form = selecttagForm()
-			context = {
-				'user':request.session['user'],
+			context = {				
 				'showtagform':True,
 				'showquestions':False,
 				'form':form,				
