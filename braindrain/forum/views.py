@@ -22,6 +22,10 @@ def index(request):
 		questionlist = question.objects.filter(tag=tag)
 		showquestions=True
 
+		for i in questionlist:
+			if i.isonetoone:
+				questionlist.remove(i)
+
 		if len(questionlist)==0:
 			showquestions=False
 
@@ -37,21 +41,29 @@ def index(request):
 		else:
 			context = {
 				'showquestions':showquestions,
-				'questionlist':questionlist,
-				'user':request.session['user'],
+				'questionlist':questionlist,				
 			}
 
 			return render(request, 'forum/index.html',context)
 
 	else:
-			form = selecttagForm()
-			context = {				
-				'showtagform':True,
-				'showquestions':False,
-				'form':form,				
-			}
 
-			return render(request, 'forum/index.html',context)
+		form = selecttagForm()
+		context = {				
+			'showtagform':True,
+			'showquestions':False,
+			'form':form,				
+		}
+
+		if 'user' in request.session:
+			context = {				
+			'showtagform':True,
+			'showquestions':False,
+			'form':form,
+			'user':request.session['user'],			
+		}
+
+		return render(request, 'forum/index.html',context)
 
 
 
@@ -344,6 +356,10 @@ def search(request):
 					for i in searchresult:
 						finalresults.append(i)
 
+				for i in finalresults:
+					if i.isonetoone:
+						finalresults.remove(i)
+
 					
 
 				context = {
@@ -433,6 +449,7 @@ def askquestion(request):
 						fail_silently=False)
 
 					context = {
+						"user":request.session['user'],
 						"suggestion":"Question submitted",
 					}
 					return render(request,"forum/response.html",context)
@@ -533,6 +550,7 @@ def answerquestion(request):
 								[sendmailid],
 								fail_silently=False)
 							context = {
+										"user":loggeduser,
 										"suggestion":"Your answer will be submited",
 									}					
 							return render(request,"forum/response.html",context)							
@@ -557,6 +575,7 @@ def answerquestion(request):
 					#post request forging handled by this block
 
 					context = {
+						"user":loggeduser,
 						"suggestion":"Something went Wrong!<br>Click <a href='/'>here</a> to check the questions",
 						}					
 					return render(request,"forum/response.html",context)
@@ -616,17 +635,22 @@ def answerquestion(request):
 				return render(request,'forum/answerquestion.html',context)
 			else:
 				context = {
+						"user":loggeduser,
 						"suggestion":"no such question exists!<br>Click <a href='/'>here</a> to check the questions",
 						}					
 				return render(request,"forum/response.html",context)
 				
 		else:
 			context = {
+						"user":loggeduser,
 						"suggestion":"no such question exists!<br>Click <a href='/'>here</a> to check the questions",
 						}					
 			return render(request,"forum/response.html",context)
 	else:
-		return HttpResponse(loginalert)
+		context = {			
+			"suggestion":loginalert,
+			}					
+		return render(request,"forum/response.html",context)		
 
 
 
@@ -666,7 +690,6 @@ def addtag(request):
 
 	else:
 		context = {
-						"suggestion":loginalert,
-						}					
-		return render(request,"forum/response.html",context)
-		return HttpResponse(loginalert)
+					"suggestion":loginalert,
+				}					
+		return render(request,"forum/response.html",context)		
