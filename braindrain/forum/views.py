@@ -307,7 +307,10 @@ def profile(request):
 			context.update({"questionaskedtoyoulist":questionaskedtoyoulist,'showquestionsaskedtoyou':showquestionsaskedtoyou,})
 		return render(request, 'forum/profilepage.html',context)
 	else:
-		return HttpResponse(loginalert)
+		context = {
+					"suggestion":loginalert,
+				}					
+		return render(request,"forum/response.html",context)
 @csrf_exempt
 def search(request):
 	if 'user' in request.session:
@@ -398,7 +401,10 @@ def search(request):
 			return render(request,'forum/searchpage.html',context)
 
 	else:
-		return HttpResponse(loginalert)
+		context = {
+					"suggestion":loginalert,
+				}					
+		return render(request,"forum/response.html",context)
 
 @csrf_exempt
 def askquestion(request):
@@ -474,7 +480,10 @@ def askquestion(request):
 			return render(request, 'forum/askquestion.html',context)
 
 	else:
-		return HttpResponse(loginalert)
+		context = {
+					"suggestion":loginalert,
+				}					
+		return render(request,"forum/response.html",context)
 
 def answerquestion(request):
 	if 'user' in request.session:
