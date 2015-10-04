@@ -19,13 +19,9 @@ loginalert = "please login<br>click <a href=/login>here</a> to login"
 def index(request):
 	if 'tags' in request.POST:
 		tag = request.POST.get('tags')
-		questionlist = question.objects.filter(tag=tag)
+		questionlist = question.objects.filter(tag=tag,isonetoone=False)
 		showquestions=True
-
-		for i in questionlist:
-			if i.isonetoone:
-				questionlist.remove(i)
-
+		
 		if len(questionlist)==0:
 			showquestions=False
 
