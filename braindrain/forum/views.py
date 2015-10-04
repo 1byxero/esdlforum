@@ -59,7 +59,7 @@ def index(request):
 			'user':request.session['user'],			
 		}
 
-		return render(request, 'forum/index.html',context)
+		return render(request, 'forum/tagindex.html',context)
 
 
 

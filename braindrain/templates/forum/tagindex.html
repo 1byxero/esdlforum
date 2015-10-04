@@ -1,0 +1,112 @@
+{% load staticfiles %}
+<!DOCTYPE html>
+<html>
+	<head>
+		<title>{{title}}</title>
+	<style>
+			body {
+  padding-top: 70px;
+  padding-bottom: 30px;
+}
+p {
+    font-size:300%;
+}
+
+.theme-dropdown .dropdown-menu {
+  position: static;
+  display: block;
+  margin-bottom: 20px;
+}
+
+.theme-showcase > p > .btn {
+  margin: 5px 0;
+}
+
+.theme-showcase .navbar .container {
+  width: auto;
+  height:200px;
+}
+
+		</style>
+
+
+		 <!-- Bootstrap core CSS -->
+    <link href="{% static 'forum/css//bootstrap.min.css'%} " rel="stylesheet">
+    <!-- Bootstrap theme -->
+    <link href="{% static 'forum/css/bootstrap-theme.min.css'%} " rel="stylesheet">
+
+
+
+
+
+	</head>
+
+<body>
+{% include 'forum/navbar.html'%}
+
+    <div class="container" role="main">
+
+
+			{% if showquestions %}
+
+			<div class="jumbotron">
+			<p>Questions you may have answers to</p>
+			</div>
+
+		<div>
+
+			<table class = "table table-bordered">
+
+
+				<tr>
+				<th>Title</th>
+				<th>Content</th>
+				<th>Answered</th>
+				<th>Submitted by</th>
+
+				</tr>
+
+				{% for i in questionlist %}
+					<tr>
+					<td>{{i}}</td>
+					<td><a href="/answerquestion?qid={{i.qid}}">{{i.questioncontent}}</a></td>
+					<td> {% if i.answered%} yes {%else%} no {%endif%} </td>
+					<td>{{i.askedby}}</td>
+					</tr>
+
+				{% endfor %}
+
+			</table>
+
+		</div>
+
+			{% elif showtagform %}
+
+			<form action = "." method="post" >{% csrf_token %}
+			{{ form }}
+			<input type="submit" value="Select" name = "submit"/>
+			</form>
+
+			{% else %}
+
+			<div class="jumbotron">
+				<h1>Nobody has asked questions!</h1>
+				<p> You be the first to set this trend!</p>
+			</div>
+
+			{% endif %}
+
+
+
+	</div>
+
+
+
+		<!-- loading scripts here to load the page faster -->
+
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
+	<script src="{% static 'forum/js/bootstrap.min.js' %}"></script>
+
+</body>
+
+</html>
