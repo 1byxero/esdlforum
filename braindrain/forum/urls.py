@@ -11,6 +11,7 @@ urlpatterns = [
     url(r'^askquestion/', views.askquestion, name='askquestion'),
     url(r'^answerquestion/',views.answerquestion,name='answerquestion'),
     url(r'^addtag/',views.addtag,name='addtag'),
+    url(r'^logout/',views.logout,name='logout'),
 
 ]
 

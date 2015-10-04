@@ -697,4 +697,15 @@ def addtag(request):
 		context = {
 					"suggestion":loginalert,
 				}					
-		return render(request,"forum/response.html",context)		
+		return render(request,"forum/response.html",context)
+
+def logout(request):
+	if 'user' in request.session:
+		del request.session['user']
+		context = {
+					"suggestion":"Successfully logged out!",
+				}					
+		return render(request,"forum/response.html",context)
+	else:
+		return redirect(index)
+

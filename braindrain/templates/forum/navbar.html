@@ -7,18 +7,34 @@
             <span class="icon-bar"></span>
             <span class="icon-bar"></span>
           </button>
-          <a class="navbar-brand">Hello {{user}}</a>
+          <a class="navbar-brand" id ="user">Hello {{user}}</a>
         </div>
         <div id="navbar" class="navbar-collapse collapse">
           <ul class="nav navbar-nav">
-            <li class="active"><a href="/login">Login</a></li>
-            <li><a href="/signup">Signup</a></li>
+            <li class="active" id = "login" style = "hidden"><a href="/login">Login</a></li>
+            <li><a id = "signup" href="/signup">Signup</a></li>
             <li><a href="/profile">Profile</a></li>
             <li><a href="/search">Search</a></li>
           </ul>
         </div><!--/.nav-collapse -->
       </div>
     </nav>
+
+
+
+    </body>
+    <script type="text/javascript">
+
+    var checkuser = document.getElementById("user").innerHTML;    
+    if(checkuser != "Hello AnonymousUser")
+        {
+          document.getElementById("login").style = "display : none;";          
+          document.getElementById("signup").style = "display : none;";          
+        }
+      
+    </script>
+    <body>
+    
   
 
   
